@@ -145,16 +145,28 @@ bot.on('message', async (msg) => {
   const name   = msg.from.first_name || 'there';
   const text   = (msg.text || '').toLowerCase().trim();
 
+  const mainMenu = {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '📊 My Status', callback_data: 'status' },
+          { text: '🔗 Link Account', callback_data: 'link_prompt' },
+        ],
+        [
+          { text: '🔄 Renew / Upgrade', callback_data: 'renew' },
+          { text: '❓ Help', callback_data: 'help' },
+        ]
+      ]
+    }
+  };
+
   // ── /start or hi/hello ──────────────────────────────────────────────────
   if (text === '/start' || text === 'hi' || text === 'hello' || text === 'hey') {
     return bot.sendMessage(chatId,
       `👋 Hey ${name}! Welcome to *Stock Club* 📈\n\n` +
-      `Here's what I can do for you:\n\n` +
-      `📊 *status* — Check your subscription & days remaining\n` +
-      `🔄 *renew* — Upgrade or renew your membership\n` +
-      `❓ *help* — Show this menu\n\n` +
-      `If you just paid, your invite link is coming within 60 seconds!`,
-      { parse_mode: 'Markdown' }
+      `What would you like to do?`,
+      mainMenu
     );
   }
 
@@ -163,10 +175,11 @@ bot.on('message', async (msg) => {
     return bot.sendMessage(chatId,
       `🤖 *Stock Club Bot Commands*\n\n` +
       `📊 *status* — View your plan & expiry date\n` +
+      `🔗 *link your@email.com* — Link your email to your Telegram\n` +
       `🔄 *renew* — Get a link to renew or upgrade\n` +
       `❓ *help* — Show this menu\n\n` +
       `Questions? DM @ra1phie directly 💬`,
-      { parse_mode: 'Markdown' }
+      mainMenu
     );
   }
 
@@ -264,16 +277,207 @@ bot.on('message', async (msg) => {
     }
   }
 
+  // ── link email@example.com ──────────────────────────────────────────────
+  if (text.startsWith('link ') || text.startsWith('/link ')) {
+    const email = text.replace('/link ', '').replace('link ', '').trim().toLowerCase();
+
+    if (!email.includes('@') || !email.includes('.')) {
+      return bot.sendMessage(chatId,
+        `⚠️ *Invalid email format*\n\n` +
+        `Usage: \`link your@email.com\`\n\n` +
+        `Example: \`link john@gmail.com\``,
+        { parse_mode: 'Markdown' }
+      );
+    }
+
+    await bot.sendMessage(chatId, `🔍 Looking up your account with *${email}*...`, { parse_mode: 'Markdown' });
+
+    try {
+      // Find Stripe customer by email
+      const customers = await stripe.customers.list({ email, limit: 5 });
+
+      if (!customers.data.length) {
+        return bot.sendMessage(chatId,
+          `❌ *No account found* for \`${email}\`\n\n` +
+          `Make sure this is the email you used to pay.\n\n` +
+          `If you need help, DM @ra1phie 💬`,
+          { parse_mode: 'Markdown' }
+        );
+      }
+
+      const customer = customers.data[0];
+
+      // Find their active subscription
+      const subs = await stripe.subscriptions.list({ customer: customer.id, status: 'active', limit: 5 });
+
+      if (!subs.data.length) {
+        return bot.sendMessage(chatId,
+          `❌ *No active subscription* found for \`${email}\`\n\n` +
+          `If you believe this is an error, DM @ra1phie 💬`,
+          { parse_mode: 'Markdown' }
+        );
+      }
+
+      const sub = subs.data[0];
+      const tgUsername = msg.from.username || String(msg.from.id);
+
+      // Update subscription metadata with their Telegram username
+      await stripe.subscriptions.update(sub.id, {
+        metadata: {
+          ...sub.metadata,
+          telegram_username: tgUsername,
+        }
+      });
+
+      const periodEnd = sub.current_period_end;
+      const daysLeft  = Math.ceil((periodEnd - Math.floor(Date.now() / 1000)) / 86400);
+      const renewDate = new Date(periodEnd * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const plan      = sub.metadata?.plan || sub.items?.data[0]?.price?.nickname || 'Membership';
+
+      return bot.sendMessage(chatId,
+        `✅ *Account linked successfully!*\n\n` +
+        `Your Telegram is now connected to:\n📧 \`${email}\`\n\n` +
+        `📋 Plan: *${plan}*\n` +
+        `📅 Renews: *${renewDate}*\n` +
+        `⏳ Days remaining: *${daysLeft} days*\n\n` +
+        `You can now type *status* anytime to check your subscription 📈`,
+        { parse_mode: 'Markdown' }
+      );
+
+    } catch (err) {
+      console.error('Link error:', err.message);
+      return bot.sendMessage(chatId,
+        `⚠️ Something went wrong. Please try again or DM @ra1phie.`
+      );
+    }
+  }
+
   // ── Default response ────────────────────────────────────────────────────
   return bot.sendMessage(chatId,
-    `👋 Hey ${name}! Thanks for reaching out to Stock Club.\n\n` +
-    `Type *help* to see what I can do for you 📈`,
-    { parse_mode: 'Markdown' }
+    `👋 Hey ${name}! What would you like to do?`,
+    mainMenu
   );
 });
 
 
-const pendingInvites = {};
+// ─── INLINE BUTTON HANDLER ───────────────────────────────────────────────────
+bot.on('callback_query', async (query) => {
+  const chatId = query.message.chat.id;
+  const name   = query.from.first_name || 'there';
+  const data   = query.data;
+
+  // Acknowledge the button tap
+  await bot.answerCallbackQuery(query.id);
+
+  const mainMenu = {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '📊 My Status', callback_data: 'status' },
+          { text: '🔗 Link Account', callback_data: 'link_prompt' },
+        ],
+        [
+          { text: '🔄 Renew / Upgrade', callback_data: 'renew' },
+          { text: '❓ Help', callback_data: 'help' },
+        ]
+      ]
+    }
+  };
+
+  if (data === 'help') {
+    return bot.sendMessage(chatId,
+      `🤖 *Stock Club Bot Commands*\n\n` +
+      `📊 *status* — View your plan & days remaining\n` +
+      `🔗 *link your@email.com* — Connect your email\n` +
+      `🔄 *renew* — Renew or upgrade your plan\n\n` +
+      `Questions? DM @ra1phie 💬`,
+      mainMenu
+    );
+  }
+
+  if (data === 'renew') {
+    return bot.sendMessage(chatId,
+      `🔄 *Renew or Upgrade Your Membership*\n\n` +
+      `👉 https://stockclubvip.com\n\n` +
+      `_Legacy member? Use the Legacy Members link at the bottom of the page._`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  if (data === 'link_prompt') {
+    return bot.sendMessage(chatId,
+      `🔗 *Link Your Account*\n\n` +
+      `Type your email like this:\n` +
+      `\`link your@email.com\`\n\n` +
+      `Use the email you used when you first paid 📧`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  if (data === 'status') {
+    await bot.sendMessage(chatId, `🔍 Looking up your subscription...`);
+    try {
+      const tgUsername = query.from.username;
+      const tgUserId   = String(query.from.id);
+
+      const subscriptions = await stripe.subscriptions.list({ limit: 100, status: 'active', expand: ['data.customer'] });
+      let found = null;
+      for (const sub of subscriptions.data) {
+        const meta = sub.metadata?.telegram_username || '';
+        if (meta === tgUsername || meta === tgUserId || meta === `@${tgUsername}`) {
+          found = sub; break;
+        }
+      }
+
+      // Check lifetime
+      if (!found) {
+        const sessions = await stripe.checkout.sessions.list({ limit: 100 });
+        for (const s of sessions.data) {
+          const meta = s.metadata?.telegram_username || '';
+          if ((meta === tgUsername || meta === tgUserId || meta === `@${tgUsername}`) &&
+              s.metadata?.plan?.toLowerCase() === 'lifetime' && s.payment_status === 'paid') {
+            return bot.sendMessage(chatId,
+              `🏆 *Lifetime Member*\n\nYou have *unlimited access — forever!* 🎉\n\nNever billed again. You're set for life.`,
+              mainMenu
+            );
+          }
+        }
+      }
+
+      if (!found) {
+        return bot.sendMessage(chatId,
+          `❌ *No active subscription found*\n\n` +
+          `Link your account first by typing:\n\`link your@email.com\`\n\n` +
+          `Or join at 👉 https://stockclubvip.com`,
+          mainMenu
+        );
+      }
+
+      const now       = Math.floor(Date.now() / 1000);
+      const daysLeft  = Math.ceil((found.current_period_end - now) / 86400);
+      const renewDate = new Date(found.current_period_end * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const plan      = found.metadata?.plan || found.items?.data[0]?.price?.nickname || 'Membership';
+      const amount    = (found.items?.data[0]?.price?.unit_amount / 100).toFixed(2);
+      const interval  = found.items?.data[0]?.price?.recurring?.interval || 'month';
+
+      return bot.sendMessage(chatId,
+        `${daysLeft <= 7 ? '⚠️' : '✅'} *Your Stock Club Subscription*\n\n` +
+        `📋 Plan: *${plan}*\n` +
+        `💰 Amount: *$${amount}/${interval}*\n` +
+        `📅 Renews: *${renewDate}*\n` +
+        `⏳ Days remaining: *${daysLeft} days*\n\n` +
+        `${daysLeft <= 7 ? '⚠️ _Renewing soon!_ Tap below to manage.' : '📈 Keep watching those signals!'}`,
+        mainMenu
+      );
+    } catch (err) {
+      console.error('Callback status error:', err.message);
+      return bot.sendMessage(chatId, `⚠️ Something went wrong. Please try again or DM @ra1phie.`);
+    }
+  }
+});
+
+
 
 // ─── TELEGRAM HELPER: Send invite link with retry ────────────────────────────
 async function sendTelegramInvite(username, name, plan, retryCount = 0) {
