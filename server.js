@@ -16,7 +16,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 app.use(cors({
