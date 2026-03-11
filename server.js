@@ -19,10 +19,12 @@ const app = express();
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
-// Allow your frontend domain to call this backend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+app.options('*', cors());
 
 // ─── IMPORTANT: raw body for Stripe webhook verification ─────────────────────
 app.use('/webhook', express.raw({ type: 'application/json' }));
