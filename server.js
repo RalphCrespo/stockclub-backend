@@ -137,7 +137,22 @@ app.post('/webhook', async (req, res) => {
   res.json({ received: true });
 });
 
-// ─── PENDING INVITES (in-memory store for retry) ─────────────────────────────
+// ─── BOT MESSAGE HANDLER ─────────────────────────────────────────────────────
+// Responds when a user messages the bot directly
+bot.on('message', (msg) => {
+  const chatId = msg.chat.id;
+  const name = msg.from.first_name || 'there';
+
+  bot.sendMessage(chatId,
+    `👋 Hey ${name}! Thanks for reaching out to Stock Club.\n\n` +
+    `✅ Got your message — you're all set!\n\n` +
+    `If you've just completed your payment, your private Telegram invite link will be sent to you here within 60 seconds. 📈\n\n` +
+    `If you haven't joined yet, head over to our website to get started:\n` +
+    `👉 https://stockclubvip.com`
+  );
+});
+
+
 const pendingInvites = {};
 
 // ─── TELEGRAM HELPER: Send invite link with retry ────────────────────────────
