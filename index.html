@@ -381,6 +381,15 @@
     font-size:0.7rem; font-weight:600; letter-spacing:0.05em;
     color: var(--text);
   }
+  .plan-tab {
+    background: var(--dark3); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 6px; border-radius: 4px;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .plan-tab:hover { border-color: var(--gold); }
+  .plan-tab.active { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+
   .plan-summary {
     background: rgba(201,168,76,0.06);
     border: 1px solid var(--border);
@@ -770,6 +779,26 @@
       <h2>Join Stock Club</h2>
       <p class="modal-sub">Complete your membership — you'll be added to Telegram instantly.</p>
 
+      <!-- PLAN SWITCHER -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:20px;">
+        <button class="plan-tab" id="tab-Monthly" onclick="switchPlan('Monthly','$49','$49/mo')">
+          <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Monthly</div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--gold);">$49</div>
+        </button>
+        <button class="plan-tab" id="tab-Quarterly" onclick="switchPlan('Quarterly','$119','$119/3mo')">
+          <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Quarterly</div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--gold);">$119</div>
+        </button>
+        <button class="plan-tab" id="tab-Annual" onclick="switchPlan('Annual','$399','$399/yr')">
+          <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Annual</div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--gold);">$399</div>
+        </button>
+        <button class="plan-tab" id="tab-Lifetime" onclick="switchPlan('Lifetime','$1,500','$1,500 once')">
+          <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Lifetime</div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--gold);">$1,500</div>
+        </button>
+      </div>
+
       <div class="plan-summary">
         <span class="plan-name" id="selectedPlan">Monthly - $49/mo</span>
         <span class="plan-price" id="selectedPrice">$49</span>
@@ -829,12 +858,16 @@
 const BACKEND_URL = 'https://stockclub-backend.onrender.com'; // ✅ Your live backend
 
 function openModal(plan, price) {
-  document.getElementById('selectedPlan').textContent = plan;
+  const periodMap = { Monthly: '$49/mo', Quarterly: '$119/3mo', Annual: '$399/yr', Lifetime: '$1,500 once' };
+  document.getElementById('selectedPlan').textContent = plan + ' — ' + (periodMap[plan] || price);
   document.getElementById('selectedPrice').textContent = price;
   document.getElementById('checkoutModal').classList.add('open');
   document.getElementById('formState').style.display = 'block';
   document.getElementById('successState').style.display = 'none';
   document.body.style.overflow = 'hidden';
+  document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('tab-' + plan);
+  if (tab) tab.classList.add('active');
   const btn = document.querySelector('#formState .btn-primary');
   btn.textContent = 'Pay & Join Club';
   btn.style.opacity = '1';
@@ -911,6 +944,14 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 
 function toggleMenu() {
   document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+function switchPlan(label, price, period) {
+  document.getElementById('selectedPlan').textContent = label + ' — ' + period;
+  document.getElementById('selectedPrice').textContent = price;
+  document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('tab-' + label);
+  if (tab) tab.classList.add('active');
 }
 
 // Smooth scroll
