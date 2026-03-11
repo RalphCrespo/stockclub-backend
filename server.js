@@ -74,8 +74,8 @@ app.post('/create-checkout', async (req, res) => {
         member_name: name || '',
         plan: plan,
       },
-      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${process.env.FRONTEND_URL}/#pricing`,
+      success_url: `${process.env.FRONTEND_URL}/?success=true`,
+      cancel_url:  `${process.env.FRONTEND_URL}/`,
     });
 
     res.json({ url: session.url });
@@ -137,16 +137,19 @@ app.post('/webhook', async (req, res) => {
   res.json({ received: true });
 });
 
-// ─── TELEGRAM HELPER: Send invite link ───────────────────────────────────────
-async function sendTelegramInvite(username, name, plan) {
+// ─── PENDING INVITES (in-memory store for retry) ─────────────────────────────
+const pendingInvites = {};
+
+// ─── TELEGRAM HELPER: Send invite link with retry ────────────────────────────
+async function sendTelegramInvite(username, name, plan, retryCount = 0) {
   try {
     // Create a one-time invite link for the private group
     const invite = await bot.createChatInviteLink(
       process.env.TELEGRAM_GROUP_ID,
       {
         name: `${username}-${Date.now()}`,
-        member_limit: 1,          // Single-use link — more secure
-        expire_date: Math.floor(Date.now() / 1000) + 86400, // Expires in 24hrs
+        member_limit: 1,
+        expire_date: Math.floor(Date.now() / 1000) + 604800, // Expires in 7 days
       }
     );
 
@@ -155,17 +158,27 @@ async function sendTelegramInvite(username, name, plan) {
       `Your *${plan}* membership is confirmed.\n\n` +
       `👇 Click below to join your private group:\n` +
       `${invite.invite_link}\n\n` +
-      `_This link is single-use and expires in 24 hours._\n\n` +
+      `_This link is single-use and expires in 7 days._\n\n` +
       `📈 See you inside!`;
 
-    // Send via bot — user must have messaged the bot first
-    // (see SETUP_GUIDE.md for how to handle this)
     await bot.sendMessage(`@${username}`, message, { parse_mode: 'Markdown' });
-
     console.log(`✅ Telegram invite sent to @${username} for plan: ${plan}`);
+
+    // Clear from pending if it was stored
+    delete pendingInvites[username];
+
   } catch (err) {
     console.error(`❌ Failed to send Telegram invite to @${username}:`, err.message);
-    // Don't crash — log it so you can manually add them
+
+    if (retryCount < 5) {
+      // Store as pending and retry every 2 minutes
+      pendingInvites[username] = { username, name, plan, retryCount, invite_link: null };
+      const delay = (retryCount + 1) * 2 * 60 * 1000; // 2, 4, 6, 8, 10 minutes
+      console.log(`⏳ Will retry sending to @${username} in ${(retryCount + 1) * 2} minutes (attempt ${retryCount + 1}/5)`);
+      setTimeout(() => sendTelegramInvite(username, name, plan, retryCount + 1), delay);
+    } else {
+      console.error(`🚨 MANUAL ACTION NEEDED: Could not reach @${username} after 5 attempts. Add them manually to the group.`);
+    }
   }
 }
 
@@ -181,6 +194,16 @@ async function notifyMemberCancelled(username) {
     console.error(`Could not notify @${username} of cancellation:`, err.message);
   }
 }
+
+// ─── MANUAL RETRY ENDPOINT ───────────────────────────────────────────────────
+// Call POST /retry-invite with { username, name, plan } to manually resend
+app.post('/retry-invite', async (req, res) => {
+  const { username, name, plan } = req.body;
+  if (!username) return res.status(400).json({ error: 'Missing username' });
+  console.log(`🔄 Manual retry triggered for @${username}`);
+  await sendTelegramInvite(username, name || 'Member', plan || 'membership', 0);
+  res.json({ message: `Retry triggered for @${username}` });
+});
 
 // ─── START SERVER ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
