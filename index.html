@@ -474,6 +474,8 @@
     .dash-grid { grid-template-columns:1fr; padding:20px; }
     .dash-header { padding:20px 24px; flex-direction:column; gap:12px; text-align:center; }
     .modal { padding:32px 24px; }
+    .lifetime-card { padding: 36px 24px !important; }
+    .lifetime-card .price-amt { font-size:3rem !important; }
   }
 </style>
 </head>
@@ -486,7 +488,7 @@
     <a href="#how">How It Works</a>
     <a href="#features">Features</a>
     <a href="#pricing">Pricing</a>
-    <a href="#" class="nav-cta" onclick="openModal('Monthly');return false;">Join Now</a>
+    <a href="#" class="nav-cta" onclick="openModal('Monthly', '$49');return false;">Join Now</a>
   </div>
 </nav>
 
@@ -670,23 +672,25 @@
         </ul>
         <button class="btn-primary btn-full" onclick="openModal('Annual', '$399')">Get Started</button>
       </div>
-      <div class="price-card lifetime-card" style="width:100%; max-width:680px; display:flex; gap:48px; align-items:center; background: linear-gradient(135deg, #13100A 0%, #1E1A0E 100%); border-color: var(--gold);">
-        <div style="flex-shrink:0;">
-          <div class="price-name" style="color:var(--gold-light);">Lifetime</div>
-          <div class="price-amt" style="font-size:4.5rem;"><sup>$</sup>1,500</div>
-          <div class="price-period">one-time payment · never pay again</div>
-        </div>
-        <div style="flex:1;">
-          <ul class="price-features" style="margin-bottom:24px;">
-            <li>Every benefit, forever</li>
-            <li>Never billed again — one & done</li>
-            <li>VIP badge in Telegram group</li>
-            <li>Direct analyst access (DMs)</li>
-            <li>All future features included free</li>
-          </ul>
-          <button class="btn-primary btn-full" onclick="openModal('Lifetime', '$1,500')" style="background: linear-gradient(135deg, var(--gold), var(--gold-light));">
-            🏆 Claim Lifetime Access
-          </button>
+      <div class="price-card lifetime-card" style="width:100%; max-width:680px; background: linear-gradient(135deg, #13100A 0%, #1E1A0E 100%); border-color: var(--gold);">
+        <div style="display:flex; gap:48px; align-items:center; flex-wrap:wrap;">
+          <div style="flex-shrink:0; min-width:160px;">
+            <div class="price-name" style="color:var(--gold-light);">Lifetime</div>
+            <div class="price-amt" style="font-size:4.5rem;"><sup>$</sup>1,500</div>
+            <div class="price-period">one-time payment · never pay again</div>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <ul class="price-features" style="margin-bottom:24px;">
+              <li>Every benefit, forever</li>
+              <li>Never billed again — one & done</li>
+              <li>VIP badge in Telegram group</li>
+              <li>Direct analyst access (DMs)</li>
+              <li>All future features included free</li>
+            </ul>
+            <button class="btn-primary btn-full" onclick="openModal('Lifetime', '$1,500')" style="background: linear-gradient(135deg, var(--gold), var(--gold-light));">
+              🏆 Claim Lifetime Access
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -695,7 +699,7 @@
   <!-- FOOTER -->
   <footer>
     <div class="footer-logo">Stock Club</div>
-    <p>© 2025 Stock Club. For informational purposes only. Not financial advice.</p>
+    <p>© 2026 Stock Club. For informational purposes only. Not financial advice.</p>
     <p style="color:var(--muted); font-size:0.75rem;">Payments secured by Stripe · SSL Encrypted</p>
   </footer>
 
@@ -859,7 +863,53 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
   });
 });
+
+// ─── SUCCESS PAGE: Show after Stripe redirects back ───────────────────────────
+if (window.location.search.includes('success=true')) {
+  document.getElementById('mainsite').style.display = 'none';
+  document.getElementById('successPage').style.display = 'flex';
+  // Clean URL
+  window.history.replaceState({}, '', '/stockclub-backend/');
+}
 </script>
+
+<!-- SUCCESS PAGE -->
+<div id="successPage" style="display:none; min-height:100vh; background:var(--dark); justify-content:center; align-items:center; padding:40px; flex-direction:column; text-align:center;">
+  <div style="max-width:560px; background:var(--dark2); border:1px solid var(--border); border-radius:12px; padding:60px 48px;">
+    <div style="font-size:4rem; margin-bottom:24px;">🎉</div>
+    <h1 style="font-family:'Playfair Display',serif; font-size:2.4rem; font-weight:700; margin-bottom:16px; color:var(--text);">
+      You're in, <em style="color:var(--gold);">welcome!</em>
+    </h1>
+    <p style="color:var(--muted); font-size:0.95rem; line-height:1.8; margin-bottom:32px;">
+      Your payment is confirmed. To receive your private Telegram invite link, you need to <strong style="color:var(--text);">message our bot first</strong> — this is a one-time step so Telegram allows us to contact you.
+    </p>
+
+    <!-- Step 1 -->
+    <div style="background:var(--dark3); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:16px; text-align:left; display:flex; gap:16px; align-items:flex-start;">
+      <div style="background:var(--gold); color:var(--dark); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; flex-shrink:0;">1</div>
+      <div>
+        <div style="font-weight:600; margin-bottom:6px;">Message our Telegram bot</div>
+        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:12px;">Click the button below to open the bot, then tap <strong style="color:var(--text);">"Start"</strong> or send any message like <strong style="color:var(--text);">"hi"</strong></p>
+        <a href="https://t.me/stockclub_membership_bot" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:#0088cc; color:#fff; padding:10px 20px; border-radius:4px; font-weight:600; font-size:0.85rem; text-decoration:none;">
+          ✈️ Open Stock Club Bot
+        </a>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div style="background:var(--dark3); border:1px solid var(--border); border-radius:8px; padding:24px; text-align:left; display:flex; gap:16px; align-items:flex-start;">
+      <div style="background:var(--gold); color:var(--dark); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; flex-shrink:0;">2</div>
+      <div>
+        <div style="font-weight:600; margin-bottom:6px;">Wait for your invite link</div>
+        <p style="color:var(--muted); font-size:0.85rem;">Once you message the bot, your private group invite will be sent to you automatically within 60 seconds. 📈</p>
+      </div>
+    </div>
+
+    <p style="color:var(--muted); font-size:0.75rem; margin-top:28px;">
+      Questions? Email us or check your spam folder if you don't receive anything within 5 minutes.
+    </p>
+  </div>
+</div>
 
 </body>
 </html>
