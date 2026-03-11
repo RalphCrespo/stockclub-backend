@@ -40,10 +40,12 @@ app.get('/', (req, res) => {
 // ─── PRICE MAP ───────────────────────────────────────────────────────────────
 // These are your Stripe Price IDs — fill in after creating products in Stripe
 const PRICE_IDS = {
-  monthly:   process.env.STRIPE_PRICE_MONTHLY,    // $49/mo
-  quarterly: process.env.STRIPE_PRICE_QUARTERLY,  // $119/3mo
-  annual:    process.env.STRIPE_PRICE_ANNUAL,      // $399/yr
-  lifetime:  process.env.STRIPE_PRICE_LIFETIME,    // $1,500 one-time
+  monthly:        process.env.STRIPE_PRICE_MONTHLY,
+  quarterly:      process.env.STRIPE_PRICE_QUARTERLY,
+  annual:         process.env.STRIPE_PRICE_ANNUAL,
+  lifetime:       process.env.STRIPE_PRICE_LIFETIME,
+  legacy_monthly: process.env.STRIPE_PRICE_LEGACY_MONTHLY,  // $5/mo
+  annual_legacy:  process.env.STRIPE_PRICE_LEGACY_ANNUAL,   // $60/yr
 };
 
 // ─── CREATE CHECKOUT SESSION ──────────────────────────────────────────────────
