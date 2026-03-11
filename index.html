@@ -460,9 +460,51 @@
   .sig-hold { color:var(--gold); font-weight:600; font-size:0.75rem; background:rgba(201,168,76,0.1); padding:3px 10px; border-radius:2px; }
   .big-num { font-family:'Playfair Display',serif; font-size:2.4rem; color:var(--green); }
 
+  .hamburger {
+    display: none;
+    flex-direction: column; gap: 5px;
+    cursor: pointer; padding: 4px; z-index: 200;
+  }
+  .hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--gold); border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .mobile-menu {
+    display: none;
+    position: fixed; inset: 0; z-index: 150;
+    background: rgba(10,12,16,0.98);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 36px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    color: var(--text); text-decoration: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+    transition: color 0.2s;
+  }
+  .mobile-menu a:hover { color: var(--gold); }
+  .mobile-menu .close-btn {
+    position: absolute; top: 24px; right: 24px;
+    background: none; border: none;
+    color: var(--muted); font-size: 2rem;
+    cursor: pointer; line-height: 1;
+  }
+  .mobile-menu .mob-cta {
+    background: var(--gold); color: var(--dark) !important;
+    padding: 14px 40px; border-radius: 4px;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 1rem !important; font-weight: 700 !important;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+
   @media(max-width:768px) {
     nav { padding:16px 24px; }
     .nav-links { display:none; }
+    .hamburger { display: flex; }
     section { padding: 60px 24px; }
     .steps { grid-template-columns:1fr; }
     .features-grid { grid-template-columns:1fr; }
@@ -490,7 +532,19 @@
     <a href="#pricing">Pricing</a>
     <a href="#" class="nav-cta" onclick="openModal('Monthly', '$49');return false;">Join Now</a>
   </div>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-btn" onclick="toggleMenu()">✕</button>
+  <a href="#how" onclick="toggleMenu()">How It Works</a>
+  <a href="#features" onclick="toggleMenu()">Features</a>
+  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="#" class="mob-cta" onclick="toggleMenu(); openModal('Monthly','$49'); return false;">Join Now</a>
+</div>
 
 <!-- MAIN SITE -->
 <div id="mainsite">
@@ -854,6 +908,10 @@ async function simulatePayment() {
 document.getElementById('checkoutModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
 
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
