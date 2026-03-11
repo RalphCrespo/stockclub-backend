@@ -139,18 +139,136 @@ app.post('/webhook', async (req, res) => {
   res.json({ received: true });
 });
 
-// ─── BOT MESSAGE HANDLER ─────────────────────────────────────────────────────
-// Responds when a user messages the bot directly
-bot.on('message', (msg) => {
+// ─── BOT COMMAND HANDLER ─────────────────────────────────────────────────────
+bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
-  const name = msg.from.first_name || 'there';
+  const name   = msg.from.first_name || 'there';
+  const text   = (msg.text || '').toLowerCase().trim();
 
-  bot.sendMessage(chatId,
+  // ── /start or hi/hello ──────────────────────────────────────────────────
+  if (text === '/start' || text === 'hi' || text === 'hello' || text === 'hey') {
+    return bot.sendMessage(chatId,
+      `👋 Hey ${name}! Welcome to *Stock Club* 📈\n\n` +
+      `Here's what I can do for you:\n\n` +
+      `📊 *status* — Check your subscription & days remaining\n` +
+      `🔄 *renew* — Upgrade or renew your membership\n` +
+      `❓ *help* — Show this menu\n\n` +
+      `If you just paid, your invite link is coming within 60 seconds!`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  // ── help ────────────────────────────────────────────────────────────────
+  if (text === 'help' || text === '/help') {
+    return bot.sendMessage(chatId,
+      `🤖 *Stock Club Bot Commands*\n\n` +
+      `📊 *status* — View your plan & expiry date\n` +
+      `🔄 *renew* — Get a link to renew or upgrade\n` +
+      `❓ *help* — Show this menu\n\n` +
+      `Questions? DM @ra1phie directly 💬`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  // ── renew ───────────────────────────────────────────────────────────────
+  if (text === 'renew' || text === '/renew') {
+    return bot.sendMessage(chatId,
+      `🔄 *Renew or Upgrade Your Membership*\n\n` +
+      `Click below to visit the membership page:\n` +
+      `👉 https://stockclubvip.com\n\n` +
+      `_Already a legacy member? Use the Legacy Members link at the bottom of the page._`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  // ── status ──────────────────────────────────────────────────────────────
+  if (text === 'status' || text === '/status') {
+    await bot.sendMessage(chatId, `🔍 Looking up your subscription...`);
+
+    try {
+      const tgUsername = msg.from.username;
+      const tgUserId   = String(msg.from.id);
+
+      // Search Stripe customers — match by telegram_username in metadata
+      const subscriptions = await stripe.subscriptions.list({ limit: 100, status: 'active', expand: ['data.customer'] });
+
+      let found = null;
+      for (const sub of subscriptions.data) {
+        const meta = sub.metadata?.telegram_username || '';
+        if (
+          meta === tgUsername ||
+          meta === tgUserId ||
+          meta === `@${tgUsername}`
+        ) {
+          found = sub;
+          break;
+        }
+      }
+
+      // Also check one-time lifetime payments
+      if (!found) {
+        const sessions = await stripe.checkout.sessions.list({ limit: 100 });
+        for (const s of sessions.data) {
+          const meta = s.metadata?.telegram_username || '';
+          if (
+            (meta === tgUsername || meta === tgUserId || meta === `@${tgUsername}`) &&
+            s.metadata?.plan?.toLowerCase() === 'lifetime' &&
+            s.payment_status === 'paid'
+          ) {
+            return bot.sendMessage(chatId,
+              `🏆 *Lifetime Member*\n\n` +
+              `You have *unlimited access — forever!*\n\n` +
+              `Never billed again. You're set for life 🎉`,
+              { parse_mode: 'Markdown' }
+            );
+          }
+        }
+      }
+
+      if (!found) {
+        return bot.sendMessage(chatId,
+          `❌ *No active subscription found*\n\n` +
+          `I couldn't find an account linked to your Telegram.\n\n` +
+          `If you think this is an error, DM @ra1phie 💬\n\n` +
+          `Or join at 👉 https://stockclubvip.com`,
+          { parse_mode: 'Markdown' }
+        );
+      }
+
+      // Calculate days remaining
+      const now          = Math.floor(Date.now() / 1000);
+      const periodEnd    = found.current_period_end;
+      const daysLeft     = Math.ceil((periodEnd - now) / 86400);
+      const renewDate    = new Date(periodEnd * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const planNickname = found.metadata?.plan || found.items?.data[0]?.price?.nickname || 'Membership';
+      const amount       = (found.items?.data[0]?.price?.unit_amount / 100).toFixed(2);
+      const interval     = found.items?.data[0]?.price?.recurring?.interval || 'month';
+
+      const statusEmoji = daysLeft <= 7 ? '⚠️' : '✅';
+
+      return bot.sendMessage(chatId,
+        `${statusEmoji} *Your Stock Club Subscription*\n\n` +
+        `📋 Plan: *${planNickname}*\n` +
+        `💰 Amount: *$${amount}/${interval}*\n` +
+        `📅 Renews: *${renewDate}*\n` +
+        `⏳ Days remaining: *${daysLeft} days*\n\n` +
+        `${daysLeft <= 7 ? '⚠️ _Your subscription renews soon!_\n\nType *renew* to manage your plan.' : '📈 Keep watching those signals!'}`,
+        { parse_mode: 'Markdown' }
+      );
+
+    } catch (err) {
+      console.error('Status lookup error:', err.message);
+      return bot.sendMessage(chatId,
+        `⚠️ Something went wrong looking up your account. Please try again or DM @ra1phie.`
+      );
+    }
+  }
+
+  // ── Default response ────────────────────────────────────────────────────
+  return bot.sendMessage(chatId,
     `👋 Hey ${name}! Thanks for reaching out to Stock Club.\n\n` +
-    `✅ Got your message — you're all set!\n\n` +
-    `If you've just completed your payment, your private Telegram invite link will be sent to you here within 60 seconds. 📈\n\n` +
-    `If you haven't joined yet, head over to our website to get started:\n` +
-    `👉 https://stockclubvip.com`
+    `Type *help* to see what I can do for you 📈`,
+    { parse_mode: 'Markdown' }
   );
 });
 
