@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stock Club — Legacy Members</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --dark: #0A0C10;
+    --dark2: #111418;
+    --dark3: #181C22;
+    --border: rgba(201,168,76,0.18);
+    --text: #E8E6E0;
+    --muted: #7A7D85;
+    --green: #3DDC84;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse 80% 60% at 50% 10%, rgba(201,168,76,0.05) 0%, transparent 70%);
+    pointer-events:none;
+  }
+
+  /* PASSWORD SCREEN */
+  .password-screen {
+    width: 100%; max-width: 440px;
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 56px 48px;
+    text-align: center;
+    position: relative; z-index:2;
+  }
+  .lock-icon { font-size: 3rem; margin-bottom: 24px; }
+  .password-screen h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .password-screen h1 em { color: var(--gold); font-style: italic; }
+  .password-screen p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 32px; }
+  .password-input {
+    width: 100%;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.15em;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .password-input:focus { border-color: var(--gold); }
+  .password-input.error { border-color: #FF5A5A; animation: shake 0.3s ease; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-8px)}
+    75%{transform:translateX(8px)}
+  }
+  .btn-primary {
+    width: 100%;
+    background: var(--gold);
+    color: var(--dark);
+    border: none; padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    border-radius: 3px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--gold-light); }
+  .error-msg { color: #FF5A5A; font-size: 0.82rem; margin-top: 12px; display:none; }
+
+  /* LEGACY PAGE */
+  .legacy-page {
+    display: none;
+    width: 100%; max-width: 780px;
+    position: relative; z-index:2;
+  }
+  .legacy-header { text-align: center; margin-bottom: 48px; }
+  .legacy-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 6px 18px; border-radius: 2px;
+    margin-bottom: 20px;
+  }
+  .legacy-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700; line-height: 1.15; margin-bottom: 16px;
+  }
+  .legacy-header h1 em { color: var(--gold); font-style: italic; }
+  .legacy-header p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 500px; margin: 0 auto; }
+
+  /* PLANS */
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  .plan-card {
+    background: var(--dark2);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 36px 28px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .plan-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .plan-card.selected { border-color: var(--gold); background: var(--dark3); }
+  .plan-card.selected::before {
+    content: '✓ SELECTED';
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: var(--dark);
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+    padding: 4px 14px; border-radius: 2px;
+  }
+  .plan-name { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .plan-price { font-family: 'Playfair Display', serif; font-size: 3.2rem; font-weight: 700; color: var(--gold); line-height: 1; }
+  .plan-price sup { font-size: 1.4rem; vertical-align: super; }
+  .plan-period { font-size: 0.8rem; color: var(--muted); margin-top: 6px; margin-bottom: 16px; }
+  .plan-save {
+    display: inline-block;
+    background: rgba(61,220,132,0.1);
+    border: 1px solid rgba(61,220,132,0.2);
+    color: var(--green);
+    font-size: 0.72rem; font-weight: 600;
+    padding: 4px 12px; border-radius: 2px;
+    margin-bottom: 20px;
+  }
+  .plan-features { list-style: none; text-align: left; }
+  .plan-features li {
+    font-size: 0.83rem; padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; gap: 8px; color: var(--text);
+  }
+  .plan-features li::before { content: '✦'; color: var(--gold); font-size: 0.55rem; margin-top: 4px; flex-shrink: 0; }
+
+  /* CHECKOUT */
+  .checkout-box {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 40px;
+  }
+  .checkout-box h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 24px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input {
+    width: 100%; background: var(--dark3);
+    border: 1px solid var(--border);
+    color: var(--text); padding: 13px 16px;
+    border-radius: 4px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus { border-color: var(--gold); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card-preview {
+    background: var(--dark3); border: 1px solid var(--border);
+    border-radius: 4px; padding: 13px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .card-preview span { font-size: 0.85rem; color: var(--muted); }
+  .card-icons { display: flex; gap: 8px; }
+  .card-icons span {
+    background: var(--dark); border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 2px;
+    font-size: 0.65rem; font-weight: 600; color: var(--text);
+  }
+  .plan-summary-bar {
+    background: rgba(201,168,76,0.06); border: 1px solid var(--border);
+    border-radius: 4px; padding: 14px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .plan-summary-bar .ps-name { font-size: 0.88rem; font-weight: 600; }
+  .plan-summary-bar .ps-price { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); }
+  .submit-btn {
+    width: 100%; background: var(--gold); color: var(--dark);
+    border: none; padding: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    border-radius: 3px; cursor: pointer; transition: all 0.2s;
+  }
+  .submit-btn:hover { background: var(--gold-light); }
+  .stripe-note { text-align: center; margin-top: 14px; font-size: 0.72rem; color: var(--muted); }
+  .stripe-note::before { content: '🔒 '; }
+  .no-plan-warning { color: #FF5A5A; font-size: 0.82rem; margin-bottom: 12px; display: none; text-align: center; }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none; text-align: center;
+    width: 100%; max-width: 500px;
+    background: var(--dark2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 60px 48px;
+    position: relative; z-index:2;
+  }
+  .success-screen .check { font-size: 4rem; margin-bottom: 20px; }
+  .success-screen h2 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 12px; }
+  .success-screen p { color: var(--muted); font-size: 0.9rem; line-height: 1.8; margin-bottom: 28px; }
+  .tg-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #0088cc; color: #fff;
+    padding: 14px 28px; border-radius: 4px;
+    font-weight: 600; font-size: 0.9rem; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .tg-btn:hover { background: #0099DD; transform: translateY(-2px); }
+
+  @media(max-width: 600px) {
+    .plans { grid-template-columns: 1fr; }
+    .password-screen { padding: 40px 28px; }
+    .checkout-box { padding: 28px 20px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div class="password-screen" id="passwordScreen">
+  <div class="lock-icon">🔐</div>
+  <h1>Legacy <em>Members</em></h1>
+  <p>This page is exclusively for existing Stock Club members. Enter your access code below to lock in your rate.</p>
+  <input type="password" class="password-input" id="passwordInput" placeholder="Enter access code" onkeydown="if(event.key==='Enter') checkPassword()"/>
+  <button class="btn-primary" onclick="checkPassword()">Access My Rate →</button>
+  <p class="error-msg" id="errorMsg">❌ Incorrect code. Please check with @ra1phie on Telegram.</p>
+</div>
+
+<!-- LEGACY PAGE -->
+<div class="legacy-page" id="legacyPage">
+  <div class="legacy-header">
+    <div class="legacy-badge">🏆 Founding Member Exclusive</div>
+    <h1>Your <em>locked-in rate</em><br/>is waiting</h1>
+    <p>As an original Stock Club member, you get to keep your founding rate — forever. Pick your plan below and continue where you left off.</p>
+  </div>
+
+  <!-- PLAN SELECTION -->
+  <div class="plans">
+    <div class="plan-card" id="plan-monthly" onclick="selectPlan('legacy_monthly')">
+      <div class="plan-name">Monthly</div>
+      <div class="plan-price"><sup>$</sup>5</div>
+      <div class="plan-period">per month · cancel anytime</div>
+      <ul class="plan-features">
+        <li>All stock alerts & signals</li>
+        <li>Private Telegram access</li>
+        <li>Weekly research report</li>
+        <li>Founding member rate locked</li>
+      </ul>
+    </div>
+    <div class="plan-card" id="plan-annual" onclick="selectPlan('annual_legacy')">
+      <div class="plan-name">Annual</div>
+      <div class="plan-price"><sup>$</sup>60</div>
+      <div class="plan-period">per year · save 2 months free</div>
+      <div class="plan-save">BEST VALUE — SAVE $0</div>
+      <ul class="plan-features">
+        <li>Everything in Monthly</li>
+        <li>2 months free vs monthly</li>
+        <li>Priority alert notifications</li>
+        <li>Founding member rate locked</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CHECKOUT FORM -->
+  <div class="checkout-box">
+    <h3>Complete your membership</h3>
+    <p class="no-plan-warning" id="noPlanWarning">⚠️ Please select a plan above first</p>
+
+    <div class="plan-summary-bar" id="planSummaryBar" style="display:none;">
+      <span class="ps-name" id="summaryName">Monthly Legacy</span>
+      <span class="ps-price" id="summaryPrice">$5/mo</span>
+    </div>
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="legacyName" placeholder="John Smith"/>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="legacyEmail" placeholder="john@example.com"/>
+    </div>
+    <div class="form-group">
+      <label>Telegram Username</label>
+      <input type="text" id="legacyTelegram" placeholder="@yourhandle"/>
+    </div>
+    <div class="form-group">
+      <label>Card Number</label>
+      <div class="card-preview">
+        <span>Secure card entry via Stripe</span>
+        <div class="card-icons"><span>VISA</span><span>MC</span><span>AMEX</span></div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Expiry</label>
+        <input type="text" placeholder="MM / YY"/>
+      </div>
+      <div class="form-group">
+        <label>CVC</label>
+        <input type="text" placeholder="•••"/>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitLegacy()">Pay & Rejoin Stock Club</button>
+    <p class="stripe-note">Powered by Stripe · 256-bit SSL encryption</p>
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="successScreen">
+  <div class="check">🎉</div>
+  <h2>Welcome back!</h2>
+  <p>Your legacy membership is confirmed. To receive your private Telegram invite link, message our bot and we'll send it to you within 60 seconds.</p>
+  <a href="https://t.me/stockclub_membership_bot" target="_blank" class="tg-btn">✈️ Message Stock Club Bot</a>
+  <p style="color:var(--muted); font-size:0.78rem; margin-top:20px;">Tap Start or send "hi" to the bot — your invite arrives automatically 📈</p>
+</div>
+
+<script>
+const BACKEND_URL = 'https://stockclub-backend.onrender.com';
+const PASSWORD = 'LEGACY2026'; // ← Change this to your secret code
+let selectedPlan = null;
+
+function checkPassword() {
+  const input = document.getElementById('passwordInput').value.trim().toUpperCase();
+  if (input === PASSWORD) {
+    document.getElementById('passwordScreen').style.display = 'none';
+    document.getElementById('legacyPage').style.display = 'block';
+  } else {
+    const field = document.getElementById('passwordInput');
+    const err = document.getElementById('errorMsg');
+    field.classList.add('error');
+    err.style.display = 'block';
+    setTimeout(() => field.classList.remove('error'), 400);
+  }
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+
+  if (plan === 'legacy_monthly') {
+    document.getElementById('plan-monthly').classList.add('selected');
+    document.getElementById('summaryName').textContent = 'Legacy Monthly';
+    document.getElementById('summaryPrice').textContent = '$5/mo';
+  } else {
+    document.getElementById('plan-annual').classList.add('selected');
+    document.getElementById('summaryName').textContent = 'Legacy Annual';
+    document.getElementById('summaryPrice').textContent = '$60/yr';
+  }
+
+  document.getElementById('planSummaryBar').style.display = 'flex';
+  document.getElementById('noPlanWarning').style.display = 'none';
+}
+
+async function submitLegacy() {
+  if (!selectedPlan) {
+    document.getElementById('noPlanWarning').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  const name = document.getElementById('legacyName').value.trim();
+  const email = document.getElementById('legacyEmail').value.trim();
+  const tg = document.getElementById('legacyTelegram').value.trim();
+
+  if (!name || !email || !tg) {
+    alert('Please fill in your name, email, and Telegram username.');
+    return;
+  }
+  if (!email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  if (!tg.startsWith('@')) {
+    alert('Telegram username must start with @ (e.g. @yourname)');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Redirecting to payment...';
+  btn.style.opacity = '0.7';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/create-checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan: selectedPlan,
+        email, name,
+        telegram_username: tg,
+      }),
+    });
+
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'No checkout URL returned');
+    }
+  } catch (err) {
+    alert('Something went wrong. Please try again.\n\nError: ' + err.message);
+    btn.textContent = 'Pay & Rejoin Stock Club';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }
+}
+
+// Show success page if redirected back from Stripe
+if (window.location.search.includes('success=true')) {
+  document.getElementById('passwordScreen').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+}
+</script>
+</body>
+</html>
