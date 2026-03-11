@@ -161,8 +161,10 @@ async function sendTelegramInvite(username, name, plan, retryCount = 0) {
       `_This link is single-use and expires in 7 days._\n\n` +
       `📈 See you inside!`;
 
-    await bot.sendMessage(`@${username}`, message, { parse_mode: 'Markdown' });
-    console.log(`✅ Telegram invite sent to @${username} for plan: ${plan}`);
+    // Use numeric ID if provided (more reliable), otherwise use @username
+    const chatId = username.match(/^\d+$/) ? parseInt(username) : `@${username}`;
+    await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+    console.log(`✅ Telegram invite sent to ${chatId} for plan: ${plan}`);
 
     // Clear from pending if it was stored
     delete pendingInvites[username];
@@ -171,13 +173,12 @@ async function sendTelegramInvite(username, name, plan, retryCount = 0) {
     console.error(`❌ Failed to send Telegram invite to @${username}:`, err.message);
 
     if (retryCount < 5) {
-      // Store as pending and retry every 2 minutes
-      pendingInvites[username] = { username, name, plan, retryCount, invite_link: null };
-      const delay = (retryCount + 1) * 2 * 60 * 1000; // 2, 4, 6, 8, 10 minutes
+      pendingInvites[username] = { username, name, plan, retryCount };
+      const delay = (retryCount + 1) * 2 * 60 * 1000;
       console.log(`⏳ Will retry sending to @${username} in ${(retryCount + 1) * 2} minutes (attempt ${retryCount + 1}/5)`);
       setTimeout(() => sendTelegramInvite(username, name, plan, retryCount + 1), delay);
     } else {
-      console.error(`🚨 MANUAL ACTION NEEDED: Could not reach @${username} after 5 attempts. Add them manually to the group.`);
+      console.error(`🚨 MANUAL ACTION NEEDED: Could not reach @${username} after 5 attempts.`);
     }
   }
 }
