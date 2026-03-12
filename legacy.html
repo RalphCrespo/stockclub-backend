@@ -242,18 +242,18 @@
 <div class="password-screen" id="passwordScreen">
   <div class="lock-icon">🔐</div>
   <h1>Legacy <em>Members</em></h1>
-  <p>This page is exclusively for existing Stock Club members. Enter your access code below to lock in your rate.</p>
+  <p>You were here before the doors opened. This page is exclusively for original Stock Club members — enter your access code to claim your founding rate.</p>
   <input type="password" class="password-input" id="passwordInput" placeholder="Enter access code" onkeydown="if(event.key==='Enter') checkPassword()"/>
-  <button class="btn-primary" onclick="checkPassword()">Access My Rate →</button>
-  <p class="error-msg" id="errorMsg">❌ Incorrect code. Please check with @ra1phie on Telegram.</p>
+  <button class="btn-primary" onclick="checkPassword()">Claim My Rate →</button>
+  <p class="error-msg" id="errorMsg">❌ Incorrect code. DM @ra1phie on Telegram for help.</p>
 </div>
 
 <!-- LEGACY PAGE -->
 <div class="legacy-page" id="legacyPage">
   <div class="legacy-header">
-    <div class="legacy-badge">🏆 Founding Member Exclusive</div>
-    <h1>Your <em>locked-in rate</em><br/>is waiting</h1>
-    <p>As an original Stock Club member, you get to keep your founding rate — forever. Pick your plan below and continue where you left off.</p>
+    <div class="legacy-badge">⭐ Founding Member Exclusive</div>
+    <h1>Your <em>founding rate</em><br/>is still here</h1>
+    <p>You were one of the first. While new members pay up to $49/mo, your rate stays locked in — as a thank you for being there from the start. Pick your plan and get back inside.</p>
   </div>
 
   <!-- PLAN SELECTION -->
@@ -263,33 +263,33 @@
       <div class="plan-price"><sup>$</sup>10</div>
       <div class="plan-period">per month · cancel anytime</div>
       <ul class="plan-features">
-        <li>All stock alerts & signals</li>
+        <li>All real-time alerts & signals</li>
         <li>Private Telegram access</li>
-        <li>Weekly research report</li>
-        <li>Founding member rate locked</li>
+        <li>Weekly research drops</li>
+        <li>Your founding rate, locked forever</li>
       </ul>
     </div>
     <div class="plan-card" id="plan-annual" onclick="selectPlan('annual_legacy')">
       <div class="plan-name">Annual</div>
       <div class="plan-price"><sup>$</sup>120</div>
-      <div class="plan-period">per year · set it & forget it</div>
+      <div class="plan-period">per year · $10/mo · set it & forget it</div>
       <div class="plan-save">ONE PAYMENT · FULL YEAR</div>
       <ul class="plan-features">
         <li>Everything in Monthly</li>
-        <li>One payment for the whole year</li>
+        <li>One payment, done for the year</li>
         <li>Priority alert notifications</li>
-        <li>Founding member rate locked</li>
+        <li>Your founding rate, locked forever</li>
       </ul>
     </div>
     <div class="plan-card" id="plan-lifetime" onclick="selectPlan('legacy_lifetime')" style="border-color: var(--gold);">
       <div class="plan-name" style="color:var(--gold);">Lifetime</div>
       <div class="plan-price"><sup>$</sup>500</div>
       <div class="plan-period">one-time · never pay again</div>
-      <div class="plan-save">🏆 BEST DEAL</div>
+      <div class="plan-save">🏆 PAY ONCE · IN FOREVER</div>
       <ul class="plan-features">
         <li>Everything, forever</li>
-        <li>Never billed again</li>
-        <li>Direct analyst access</li>
+        <li>Never billed again — one & done</li>
+        <li>Direct analyst access (DMs)</li>
         <li>All future features included free</li>
       </ul>
     </div>
