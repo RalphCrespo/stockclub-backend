@@ -94,32 +94,64 @@ app.post('/webhook', async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.completed' || event.type === 'invoice.payment_succeeded') {
+  // ── checkout.session.completed ─────────────────────────────────────────
+  // Fires when customer completes Stripe checkout (first payment)
+  if (event.type === 'checkout.session.completed') {
     const session          = event.data.object;
-    const telegramUsername = session.metadata?.telegram_username || session.subscription_details?.metadata?.telegram_username;
+    const telegramUsername = session.metadata?.telegram_username;
     const memberName       = session.metadata?.member_name || 'Member';
     const plan             = session.metadata?.plan || 'membership';
 
-    // ── Copy metadata to the subscription so bot lookups work ──────────────
+    console.log(`📦 Checkout completed — telegram: ${telegramUsername}, plan: ${plan}`);
+
+    // Copy metadata to subscription so bot status lookups work
     if (session.subscription && telegramUsername) {
       try {
         await stripe.subscriptions.update(session.subscription, {
-          metadata: {
-            telegram_username: telegramUsername,
-            member_name: memberName,
-            plan: plan,
-          }
+          metadata: { telegram_username: telegramUsername, member_name: memberName, plan }
         });
-        console.log(`✅ Subscription metadata updated for ${telegramUsername}`);
+        console.log(`✅ Subscription metadata saved for @${telegramUsername}`);
       } catch (err) {
         console.error('Failed to update subscription metadata:', err.message);
       }
     }
 
-    if (telegramUsername) await sendTelegramInvite(telegramUsername, memberName, plan);
-    else console.warn('No telegram_username in metadata for session:', session.id);
+    if (telegramUsername) {
+      await sendTelegramInvite(telegramUsername, memberName, plan);
+    } else {
+      console.warn('⚠️ No telegram_username in checkout metadata — session:', session.id);
+    }
   }
 
+  // ── invoice.payment_succeeded ──────────────────────────────────────────
+  // Fires on every recurring renewal — re-save metadata just in case
+  if (event.type === 'invoice.payment_succeeded') {
+    const invoice          = event.data.object;
+    const subscriptionId   = invoice.subscription;
+    const telegramUsername = invoice.subscription_details?.metadata?.telegram_username
+                          || invoice.metadata?.telegram_username;
+    const memberName       = invoice.subscription_details?.metadata?.member_name || 'Member';
+    const plan             = invoice.subscription_details?.metadata?.plan || 'membership';
+
+    console.log(`💳 Renewal payment — telegram: ${telegramUsername}, sub: ${subscriptionId}`);
+
+    // Re-save metadata on renewal in case it was missing
+    if (subscriptionId && telegramUsername) {
+      try {
+        const sub = await stripe.subscriptions.retrieve(subscriptionId);
+        if (!sub.metadata?.telegram_username) {
+          await stripe.subscriptions.update(subscriptionId, {
+            metadata: { telegram_username: telegramUsername, member_name: memberName, plan }
+          });
+          console.log(`✅ Renewal metadata saved for @${telegramUsername}`);
+        }
+      } catch (err) {
+        console.error('Failed to update renewal metadata:', err.message);
+      }
+    }
+  }
+
+  // ── customer.subscription.deleted ─────────────────────────────────────
   if (event.type === 'customer.subscription.deleted') {
     const sub      = event.data.object;
     const username = sub.metadata?.telegram_username;
