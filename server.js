@@ -20,6 +20,10 @@ bot.setWebHook(TELEGRAM_WEBHOOK_URL).then(() => {
 // ─── PENDING INVITES (declare early so all functions can access it) ───────────
 const pendingInvites = {};
 
+// ─── NUMERIC ID MAP: username → numeric Telegram ID ──────────────────────────
+// Populated when a user messages the bot — used for reliable invite delivery
+const numericIdMap = {};
+
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 app.use(cors({ origin: '*', methods: ['GET','POST','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.options('*', cors());
@@ -241,6 +245,24 @@ bot.on('message', async (msg) => {
   const name   = msg.from.first_name || 'there';
   const text   = (msg.text || '').toLowerCase().trim();
 
+  // Always store numeric ID mapped to username for reliable invite delivery
+  if (msg.from.username) {
+    const uname = msg.from.username.toLowerCase();
+    numericIdMap[uname] = chatId;
+    // Also store l↔1 variants
+    numericIdMap[uname.replace(/1/g, 'l')] = chatId;
+    numericIdMap[uname.replace(/l/g, '1')] = chatId;
+    console.log(`📝 Stored numeric ID ${chatId} for @${msg.from.username}`);
+
+    // If there's a pending invite for this user, send it now!
+    if (pendingInvites[uname] || pendingInvites[uname.replace(/1/g,'l')] || pendingInvites[uname.replace(/l/g,'1')]) {
+      const key = pendingInvites[uname] ? uname : pendingInvites[uname.replace(/1/g,'l')] ? uname.replace(/1/g,'l') : uname.replace(/l/g,'1');
+      const pending = pendingInvites[key];
+      console.log(`🎯 Found pending invite for @${msg.from.username} — sending now!`);
+      await sendTelegramInvite(String(chatId), pending.name, pending.plan, 0);
+    }
+  }
+
   // /start, hi, hello
   if (['hi','hello','hey','/start'].includes(text)) {
     return bot.sendMessage(chatId,
@@ -459,9 +481,30 @@ async function sendTelegramInvite(username, name, plan, retryCount = 0) {
       `👇 Click below to join your private group:\n${invite.invite_link}\n\n` +
       `This link is single-use and expires in 7 days.\n\n📈 See you inside!`;
 
-    const chatId = username.match(/^\d+$/) ? parseInt(username) : `@${username}`;
-    await bot.sendMessage(chatId, message);
-    console.log(`✅ Telegram invite sent to ${chatId} for plan: ${plan}`);
+    // Always try numeric ID first (most reliable), then @username
+    let sent = false;
+
+    // Try numeric ID if we have it stored
+    if (numericIdMap[username]) {
+      await bot.sendMessage(numericIdMap[username], message);
+      console.log(`✅ Invite sent via numeric ID ${numericIdMap[username]} for ${username}`);
+      sent = true;
+    }
+
+    // Try as numeric string directly
+    if (!sent && username.match(/^\d+$/)) {
+      await bot.sendMessage(parseInt(username), message);
+      console.log(`✅ Invite sent via numeric ID ${username}`);
+      sent = true;
+    }
+
+    // Try @username
+    if (!sent) {
+      await bot.sendMessage(`@${username}`, message);
+      console.log(`✅ Invite sent via @${username}`);
+      sent = true;
+    }
+
     delete pendingInvites[username];
 
   } catch (err) {
