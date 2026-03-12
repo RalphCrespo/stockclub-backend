@@ -405,13 +405,13 @@ async function sendTelegramInvite(username, name, plan, retryCount = 0) {
     });
 
     const message =
-      `🎉 *Welcome to Stock Club, ${name}!*\n\n` +
-      `Your *${plan}* membership is confirmed.\n\n` +
+      `🎉 Welcome to Stock Club, ${name}!\n\n` +
+      `Your ${plan} membership is confirmed.\n\n` +
       `👇 Click below to join your private group:\n${invite.invite_link}\n\n` +
-      `_This link is single-use and expires in 7 days._\n\n📈 See you inside!`;
+      `This link is single-use and expires in 7 days.\n\n📈 See you inside!`;
 
     const chatId = username.match(/^\d+$/) ? parseInt(username) : `@${username}`;
-    await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+    await bot.sendMessage(chatId, message);
     console.log(`✅ Telegram invite sent to ${chatId} for plan: ${plan}`);
     delete pendingInvites[username];
 
