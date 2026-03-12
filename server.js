@@ -58,27 +58,76 @@ app.post('/create-checkout', async (req, res) => {
     return res.status(400).json({ error: `Unknown plan: ${plan}` });
 
   try {
-    const isLifetime = plan.toLowerCase() === 'lifetime';
-    // Strip @ and lowercase username for consistent storage
+    const isLifetime    = plan.toLowerCase() === 'lifetime';
     const cleanUsername = telegram_username.replace('@', '').toLowerCase();
 
-    const session = await stripe.checkout.sessions.create({
+    const meta = {
+      telegram_username: cleanUsername,
+      member_name: name || '',
+      plan: plan,
+    };
+
+    const sessionParams = {
       payment_method_types: ['card'],
       mode: isLifetime ? 'payment' : 'subscription',
       customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
-      metadata: {
-        telegram_username: cleanUsername,
-        member_name: name || '',
-        plan: plan,
-      },
+      metadata: meta,
       success_url: `${process.env.FRONTEND_URL}/?success=true`,
       cancel_url:  `${process.env.FRONTEND_URL}/`,
-    });
+    };
 
+    // ── KEY FIX: pass metadata directly to subscription at creation time ──
+    // This ensures telegram_username is on the subscription immediately,
+    // not dependent on webhook timing
+    if (!isLifetime) {
+      sessionParams.subscription_data = { metadata: meta };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
     res.json({ url: session.url });
   } catch (err) {
     console.error('Stripe error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── REPAIR ENDPOINT: Fix all subscriptions missing telegram metadata ─────────
+// Call GET /repair-metadata to scan and fix all broken subscriptions
+app.get('/repair-metadata', async (req, res) => {
+  try {
+    let fixed = 0; let skipped = 0; const errors = [];
+
+    // Get all checkout sessions
+    const sessions = await stripe.checkout.sessions.list({ limit: 100 });
+
+    for (const s of sessions.data) {
+      const tg   = s.metadata?.telegram_username;
+      const subId = s.subscription;
+      if (!tg || !subId) { skipped++; continue; }
+
+      try {
+        const sub = await stripe.subscriptions.retrieve(subId);
+        if (!sub.metadata?.telegram_username) {
+          await stripe.subscriptions.update(subId, {
+            metadata: {
+              telegram_username: tg,
+              member_name: s.metadata?.member_name || '',
+              plan: s.metadata?.plan || '',
+            }
+          });
+          console.log(`🔧 Fixed metadata for @${tg} on sub ${subId}`);
+          fixed++;
+        } else {
+          skipped++;
+        }
+      } catch (err) {
+        errors.push({ subId, error: err.message });
+      }
+    }
+
+    res.json({ message: `Done! Fixed: ${fixed}, Skipped: ${skipped}, Errors: ${errors.length}`, errors });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
