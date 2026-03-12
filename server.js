@@ -47,8 +47,9 @@ const PRICE_IDS = {
   quarterly:      process.env.STRIPE_PRICE_QUARTERLY,
   annual:         process.env.STRIPE_PRICE_ANNUAL,
   lifetime:       process.env.STRIPE_PRICE_LIFETIME,
-  legacy_monthly: process.env.STRIPE_PRICE_LEGACY_MONTHLY,
-  annual_legacy:  process.env.STRIPE_PRICE_LEGACY_ANNUAL,
+  legacy_monthly:  process.env.STRIPE_PRICE_LEGACY_MONTHLY,
+  annual_legacy:   process.env.STRIPE_PRICE_LEGACY_ANNUAL,
+  legacy_lifetime: process.env.STRIPE_PRICE_LEGACY_LIFETIME,
 };
 
 // ─── CREATE CHECKOUT ──────────────────────────────────────────────────────────
@@ -62,7 +63,7 @@ app.post('/create-checkout', async (req, res) => {
     return res.status(400).json({ error: `Unknown plan: ${plan}` });
 
   try {
-    const isLifetime    = plan.toLowerCase() === 'lifetime';
+    const isLifetime = plan.toLowerCase() === 'lifetime' || plan.toLowerCase() === 'legacy_lifetime';
     const cleanUsername = telegram_username.replace('@', '').toLowerCase();
 
     const meta = {
