@@ -967,12 +967,15 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 
 // ─── SUCCESS PAGE: Show after Stripe redirects back ───────────────────────────
-if (window.location.search.includes('success=true')) {
-  document.getElementById('mainsite').style.display = 'none';
-  document.getElementById('successPage').style.display = 'flex';
-  // Clean URL
-  window.history.replaceState({}, '', '/stockclub-backend/');
-}
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.location.search.includes('success=true')) {
+    const main    = document.getElementById('mainsite');
+    const success = document.getElementById('successPage');
+    if (main)    main.style.display    = 'none';
+    if (success) success.style.display = 'flex';
+    window.history.replaceState({}, '', '/');
+  }
+});
 </script>
 
 <!-- SUCCESS PAGE -->
