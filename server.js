@@ -3,8 +3,33 @@ const express    = require('express');
 const cors       = require('cors');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const TelegramBot = require('node-telegram-bot-api');
+const fs         = require('fs');
+const path       = require('path');
 
 const app = express();
+
+// ─── PERSISTENT MEMBER STORAGE ────────────────────────────────────────────────
+const MEMBERS_FILE = path.join('/tmp', 'legacy-members.json');
+
+function loadMembers() {
+  try {
+    if (fs.existsSync(MEMBERS_FILE)) {
+      return JSON.parse(fs.readFileSync(MEMBERS_FILE, 'utf8'));
+    }
+  } catch (e) { console.error('Failed to load members:', e.message); }
+  return [];
+}
+
+function saveMembers(members) {
+  try {
+    fs.writeFileSync(MEMBERS_FILE, JSON.stringify(members, null, 2));
+  } catch (e) { console.error('Failed to save members:', e.message); }
+}
+
+let legacyMembers = loadMembers();
+
+// ─── YOUR ADMIN TELEGRAM ID ───────────────────────────────────────────────────
+const ADMIN_ID = 1316247862; // Ralph's Telegram numeric ID
 
 // ─── TELEGRAM: Use webhook mode instead of polling (fixes 409 conflict) ───────
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { webHook: false });
@@ -223,19 +248,24 @@ app.post('/retry-invite', async (req, res) => {
   res.json({ message: `Retry triggered for ${username}` });
 });
 
-// ─── SHARED MENU ──────────────────────────────────────────────────────────────
+// ─── SHARED MENUS ─────────────────────────────────────────────────────────────
 const mainMenu = {
-  parse_mode: 'Markdown',
   reply_markup: {
     inline_keyboard: [
-      [
-        { text: '📊 My Status',      callback_data: 'status'      },
-        { text: '🔗 Link Account',   callback_data: 'link_prompt' },
-      ],
-      [
-        { text: '🔄 Renew / Upgrade', callback_data: 'renew' },
-        { text: '❓ Help',            callback_data: 'help'  },
-      ]
+      [{ text: '📊 Check My Status', callback_data: 'status' }],
+      [{ text: '🔗 Link My Account', callback_data: 'link_prompt' }],
+      [{ text: '🔄 Renew / Upgrade',  callback_data: 'renew' }],
+      [{ text: '❓ Help',             callback_data: 'help'  }],
+    ]
+  }
+};
+
+const adminMenu = {
+  reply_markup: {
+    inline_keyboard: [
+      [{ text: '📋 Member List',   callback_data: 'admin_list'          }, { text: '📊 Stats',  callback_data: 'admin_stats'         }],
+      [{ text: '➕ Add Member',    callback_data: 'admin_add_prompt'    }, { text: '🔍 Lookup', callback_data: 'admin_lookup_prompt' }],
+      [{ text: '📨 Send Invite',   callback_data: 'admin_invite_prompt' }, { text: '❓ Help',   callback_data: 'admin_help'          }],
     ]
   }
 };
@@ -264,12 +294,100 @@ bot.on('message', async (msg) => {
     }
   }
 
-  // /start, hi, hello
+  // ── ADMIN COMMANDS (only you can use these) ─────────────────────────────
+  if (msg.from.id === ADMIN_ID) {
+
+    // admin add Name | email | @telegram
+    if (text.startsWith('admin add ')) {
+      const parts = msg.text.replace(/admin add /i, '').split('|').map(s => s.trim());
+      if (parts.length < 3) {
+        return bot.sendMessage(chatId,
+          `⚠️ Format: admin add Full Name | email@example.com | @telegram\n\nExample:\nadmin add John Smith | john@gmail.com | @johnsmith`
+        );
+      }
+      const [memberName, email, telegram] = parts;
+      const tg = telegram.replace('@', '').toLowerCase();
+      const existing = legacyMembers.findIndex(m => m.telegram === tg || m.email === email.toLowerCase());
+      if (existing >= 0) {
+        legacyMembers[existing] = { name: memberName, email: email.toLowerCase(), telegram: tg, added: legacyMembers[existing].added, updated: new Date().toISOString() };
+        saveMembers(legacyMembers);
+        return bot.sendMessage(chatId, `✅ Updated existing member:\n👤 ${memberName}\n📧 ${email}\n📱 @${tg}`);
+      }
+      legacyMembers.push({ name: memberName, email: email.toLowerCase(), telegram: tg, added: new Date().toISOString() });
+      saveMembers(legacyMembers);
+      return bot.sendMessage(chatId, `✅ Member added!\n👤 ${memberName}\n📧 ${email}\n📱 @${tg}\n\n📊 Total members: ${legacyMembers.length}`);
+    }
+
+    // admin list
+    if (text === 'admin list') {
+      if (!legacyMembers.length) return bot.sendMessage(chatId, `📋 No legacy members yet.`);
+      const list = legacyMembers.map((m, i) =>
+        `${i + 1}. ${m.name}\n    📧 ${m.email}\n    📱 @${m.telegram}`
+      ).join('\n\n');
+      return bot.sendMessage(chatId, `📋 Legacy Members (${legacyMembers.length} total)\n\n${list}`);
+    }
+
+    // admin lookup @username or email
+    if (text.startsWith('admin lookup ')) {
+      const query = text.replace('admin lookup ', '').replace('@', '').trim();
+      const member = legacyMembers.find(m => m.telegram === query || m.email === query || m.name.toLowerCase().includes(query));
+      if (!member) return bot.sendMessage(chatId, `❌ No member found for: ${query}`);
+      return bot.sendMessage(chatId,
+        `👤 ${member.name}\n📧 ${member.email}\n📱 @${member.telegram}\n📅 Added: ${new Date(member.added).toLocaleDateString()}`
+      );
+    }
+
+    // admin remove @username or email
+    if (text.startsWith('admin remove ')) {
+      const query = text.replace('admin remove ', '').replace('@', '').trim();
+      const before = legacyMembers.length;
+      legacyMembers = legacyMembers.filter(m => m.telegram !== query && m.email !== query);
+      saveMembers(legacyMembers);
+      if (legacyMembers.length < before) {
+        return bot.sendMessage(chatId, `🗑️ Member removed. Total remaining: ${legacyMembers.length}`);
+      }
+      return bot.sendMessage(chatId, `❌ No member found for: ${query}`);
+    }
+
+    // admin help
+    if (text === 'admin' || text === 'admin help') {
+      return bot.sendMessage(chatId,
+        `🔐 Admin Commands\n\n` +
+        `➕ admin add Name | email | @telegram\n` +
+        `📋 admin list\n` +
+        `🔍 admin lookup @telegram or email\n` +
+        `🗑️ admin remove @telegram or email\n` +
+        `📊 admin stats`
+      );
+    }
+
+    // admin invite @telegram | Name | plan
+    if (text.startsWith('admin invite ')) {
+      const parts = msg.text.replace(/admin invite /i, '').split('|').map(s => s.trim());
+      if (parts.length < 2) return bot.sendMessage(chatId, `⚠️ Format: admin invite @telegram | Name | plan`);
+      const tg   = parts[0].replace('@', '').toLowerCase();
+      const mName = parts[1] || 'Member';
+      const mPlan = parts[2] || 'membership';
+      await sendTelegramInvite(tg, mName, mPlan, 0);
+      return bot.sendMessage(chatId, `📨 Invite triggered for @${tg}!`);
+    }
+
+    // admin stats
+    if (text === 'admin stats') {
+      return bot.sendMessage(chatId,
+        `📊 Stock Club Stats\n\n` +
+        `👥 Legacy members tracked: ${legacyMembers.length}\n` +
+        `⏳ Pending invites: ${Object.keys(pendingInvites).length}\n` +
+        `🔗 Numeric IDs cached: ${Object.keys(numericIdMap).length}`
+      );
+    }
+  }
   if (['hi','hello','hey','/start'].includes(text)) {
-    return bot.sendMessage(chatId,
-      `👋 Hey ${name}! Welcome to *Stock Club* 📈\n\nWhat would you like to do?`,
-      mainMenu
-    );
+    // Admin gets special menu
+    if (msg.from.id === ADMIN_ID) {
+      return bot.sendMessage(chatId, `👑 Welcome back, Ralph!\n\nWhat would you like to manage?`, adminMenu);
+    }
+    return bot.sendMessage(chatId, `👋 Hey ${name}! Welcome to Stock Club 📈\n\nWhat would you like to do?`, mainMenu);
   }
 
   // help
@@ -347,6 +465,58 @@ bot.on('callback_query', async (query) => {
 
   if (query.data === 'status') {
     return handleStatus(chatId, query.from);
+  }
+
+  // ── Admin button callbacks ───────────────────────────────────────────────
+  if (query.from.id === ADMIN_ID) {
+    if (query.data === 'admin_list') {
+      if (!legacyMembers.length) return bot.sendMessage(chatId, `📋 No legacy members yet.`);
+      const list = legacyMembers.map((m, i) =>
+        `${i + 1}. ${m.name}\n    📧 ${m.email}\n    📱 @${m.telegram}`
+      ).join('\n\n');
+      return bot.sendMessage(chatId, `📋 Legacy Members (${legacyMembers.length} total)\n\n${list}`);
+    }
+
+    if (query.data === 'admin_stats') {
+      return bot.sendMessage(chatId,
+        `📊 Stock Club Stats\n\n` +
+        `👥 Legacy members tracked: ${legacyMembers.length}\n` +
+        `⏳ Pending invites: ${Object.keys(pendingInvites).length}\n` +
+        `🔗 Numeric IDs cached: ${Object.keys(numericIdMap).length}`,
+        adminMenu
+      );
+    }
+
+    if (query.data === 'admin_add_prompt') {
+      return bot.sendMessage(chatId,
+        `➕ To add a member, type:\n\nadmin add Full Name | email@example.com | @telegram`
+      );
+    }
+
+    if (query.data === 'admin_lookup_prompt') {
+      return bot.sendMessage(chatId,
+        `🔍 To look up a member, type:\n\nadmin lookup @telegram\nor\nadmin lookup email@example.com`
+      );
+    }
+
+    if (query.data === 'admin_invite_prompt') {
+      return bot.sendMessage(chatId,
+        `📨 To manually send an invite, type:\n\nadmin invite @telegram | Full Name | plan`
+      );
+    }
+
+    if (query.data === 'admin_help') {
+      return bot.sendMessage(chatId,
+        `🔐 Admin Commands\n\n` +
+        `➕ admin add Name | email | @telegram\n` +
+        `📋 admin list\n` +
+        `🔍 admin lookup @telegram or email\n` +
+        `🗑️ admin remove @telegram or email\n` +
+        `📨 admin invite @telegram | Name | plan\n` +
+        `📊 admin stats`,
+        adminMenu
+      );
+    }
   }
 });
 
