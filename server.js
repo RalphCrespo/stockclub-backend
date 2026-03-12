@@ -95,10 +95,27 @@ app.post('/webhook', async (req, res) => {
   }
 
   if (event.type === 'checkout.session.completed' || event.type === 'invoice.payment_succeeded') {
-    const session        = event.data.object;
+    const session          = event.data.object;
     const telegramUsername = session.metadata?.telegram_username || session.subscription_details?.metadata?.telegram_username;
     const memberName       = session.metadata?.member_name || 'Member';
     const plan             = session.metadata?.plan || 'membership';
+
+    // ── Copy metadata to the subscription so bot lookups work ──────────────
+    if (session.subscription && telegramUsername) {
+      try {
+        await stripe.subscriptions.update(session.subscription, {
+          metadata: {
+            telegram_username: telegramUsername,
+            member_name: memberName,
+            plan: plan,
+          }
+        });
+        console.log(`✅ Subscription metadata updated for ${telegramUsername}`);
+      } catch (err) {
+        console.error('Failed to update subscription metadata:', err.message);
+      }
+    }
+
     if (telegramUsername) await sendTelegramInvite(telegramUsername, memberName, plan);
     else console.warn('No telegram_username in metadata for session:', session.id);
   }
