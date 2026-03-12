@@ -6,21 +6,15 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
 
-// ─── FIX 409: Only run polling on one instance ────────────────────────────────
-// Render can spin up multiple instances — only the first one should poll
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: {
-  interval: 2000,
-  autoStart: true,
-  params: { timeout: 10 }
-}});
+// ─── TELEGRAM: Use webhook mode instead of polling (fixes 409 conflict) ───────
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { webHook: false });
 
-bot.on('polling_error', (err) => {
-  if (err.code === 'ETELEGRAM' && err.message.includes('409')) {
-    console.warn('⚠️ Another bot instance is polling — this instance will stop polling.');
-    bot.stopPolling();
-  } else {
-    console.error('Polling error:', err.message);
-  }
+// Set the webhook URL once on startup
+const TELEGRAM_WEBHOOK_URL = `${process.env.RENDER_EXTERNAL_URL || 'https://stockclub-backend.onrender.com'}/telegram-webhook`;
+bot.setWebHook(TELEGRAM_WEBHOOK_URL).then(() => {
+  console.log(`✅ Telegram webhook set to: ${TELEGRAM_WEBHOOK_URL}`);
+}).catch(err => {
+  console.error('Failed to set Telegram webhook:', err.message);
 });
 
 // ─── PENDING INVITES (declare early so all functions can access it) ───────────
@@ -36,6 +30,12 @@ app.use(express.json());
 
 // ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => res.json({ status: 'Stock Club backend running ✅' }));
+
+// ─── TELEGRAM WEBHOOK ENDPOINT ────────────────────────────────────────────────
+app.post('/telegram-webhook', (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
 
 // ─── PRICE MAP ────────────────────────────────────────────────────────────────
 const PRICE_IDS = {
