@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -19,9 +19,9 @@
     --green: #3DDC84;
     --red: #FF5A5A;
   }
-
+ 
   * { margin:0; padding:0; box-sizing:border-box; }
-
+ 
   body {
     background: var(--dark);
     color: var(--text);
@@ -29,7 +29,7 @@
     overflow-x: hidden;
     cursor: default;
   }
-
+ 
   /* NOISE OVERLAY */
   body::before {
     content:'';
@@ -37,7 +37,7 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events:none; z-index:1; opacity:0.4;
   }
-
+ 
   /* NAV */
   nav {
     position: fixed; top:0; left:0; right:0; z-index:100;
@@ -65,7 +65,7 @@
     box-shadow: 0 0 20px rgba(201,168,76,0.3);
   }
   .nav-cta:hover { background: var(--gold-light) !important; transform: translateY(-1px); box-shadow: 0 0 30px rgba(201,168,76,0.5); }
-
+ 
   /* HERO */
   .hero {
     min-height: 100vh;
@@ -87,7 +87,7 @@
     position: absolute; inset:0; overflow:hidden; opacity:0.15;
   }
   .chart-lines svg { width:100%; height:100%; }
-
+ 
   .eyebrow {
     font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--gold); font-weight: 600;
@@ -141,7 +141,7 @@
     text-decoration: none; display:inline-block;
   }
   .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
-
+ 
   /* TICKER */
   .ticker-wrap {
     width: 100%;
@@ -157,7 +157,7 @@
   .ticker-item .up { color: var(--green); }
   .ticker-item .dn { color: var(--red); }
   @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-
+ 
   /* STATS */
   .stats {
     display:flex; justify-content:center; gap:0;
@@ -182,7 +182,7 @@
     display:block;
   }
   .stat-label { font-size:0.8rem; color: var(--muted); letter-spacing: 0.1em; text-transform:uppercase; margin-top: 6px; }
-
+ 
   /* HOW IT WORKS */
   section { padding: 100px 60px; max-width: 1200px; margin: 0 auto; }
   .section-label {
@@ -196,7 +196,7 @@
     margin-bottom: 60px;
   }
   .section-title em { color: var(--gold); font-style:italic; }
-
+ 
   .steps {
     display:grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
     background: var(--border);
@@ -220,7 +220,7 @@
   .step-icon { font-size: 2rem; margin-bottom: 20px; }
   .step h3 { font-size: 1.1rem; font-weight:600; margin-bottom:12px; }
   .step p { font-size: 0.88rem; color: var(--muted); line-height:1.7; }
-
+ 
   /* FEATURES */
   .features-grid {
     display:grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
@@ -246,7 +246,7 @@
   .feat-icon { font-size:1.8rem; margin-bottom:16px; }
   .feat-title { font-size:1rem; font-weight:600; margin-bottom: 10px; }
   .feat-desc { font-size:0.85rem; color: var(--muted); line-height:1.7; }
-
+ 
   /* PRICING */
   .pricing-wrap {
     display:flex; justify-content:center; gap:24px; flex-wrap:wrap;
@@ -289,7 +289,7 @@
   }
   .price-features li::before { content:'✦'; color:var(--gold); font-size:0.6rem; margin-top:3px; flex-shrink:0; }
   .btn-full { width:100%; text-align:center; padding: 16px; }
-
+ 
   /* TELEGRAM SECTION */
   .telegram-block {
     background: var(--dark2);
@@ -320,7 +320,7 @@
     padding: 6px 16px; border-radius:3px;
     font-size:0.8rem; font-weight:500;
   }
-
+ 
   /* CHECKOUT MODAL */
   .modal-overlay {
     display:none; position:fixed; inset:0; z-index:999;
@@ -390,7 +390,7 @@
   }
   .plan-tab:hover { border-color: var(--gold); }
   .plan-tab.active { border-color: var(--gold); background: rgba(201,168,76,0.1); }
-
+ 
   .plan-summary {
     background: rgba(201,168,76,0.06);
     border: 1px solid var(--border);
@@ -406,7 +406,7 @@
     display:flex; align-items:center; justify-content:center; gap:6px;
   }
   .stripe-badge::before { content:'🔒'; font-size:0.8rem; }
-
+ 
   /* SUCCESS STATE */
   .success-state { display:none; text-align:center; padding: 20px 0; }
   .success-state .check { font-size:4rem; margin-bottom:20px; }
@@ -420,7 +420,7 @@
     margin-top:24px; transition: all 0.2s;
   }
   .telegram-btn:hover { background:#0099DD; transform:translateY(-2px); }
-
+ 
   /* FOOTER */
   footer {
     border-top: 1px solid var(--border);
@@ -430,13 +430,13 @@
   }
   .footer-logo { font-family:'Playfair Display',serif; color:var(--gold); font-size:1.1rem; }
   footer p { color:var(--muted); font-size:0.8rem; }
-
+ 
   /* ANIMATIONS */
   @keyframes fadeUp {
     from { opacity:0; transform:translateY(24px); }
     to   { opacity:1; transform:none; }
   }
-
+ 
   /* MEMBER DASHBOARD (hidden by default) */
   #dashboard {
     display:none; min-height:100vh;
@@ -469,7 +469,7 @@
   .sig-sell { color:var(--red); font-weight:600; font-size:0.75rem; background:rgba(255,90,90,0.1); padding:3px 10px; border-radius:2px; }
   .sig-hold { color:var(--gold); font-weight:600; font-size:0.75rem; background:rgba(201,168,76,0.1); padding:3px 10px; border-radius:2px; }
   .big-num { font-family:'Playfair Display',serif; font-size:2.4rem; color:var(--green); }
-
+ 
   .hamburger {
     display: none;
     flex-direction: column; gap: 5px;
@@ -510,7 +510,7 @@
     font-size: 1rem !important; font-weight: 700 !important;
     letter-spacing: 0.05em; text-transform: uppercase;
   }
-
+ 
   @media(max-width:768px) {
     nav { padding:16px 24px; }
     .nav-links { display:none !important; }
@@ -533,7 +533,7 @@
 </style>
 </head>
 <body>
-
+ 
 <!-- NAV -->
 <nav>
   <a href="/" style="text-decoration:none;">
@@ -543,25 +543,25 @@
     <a href="#how">How It Works</a>
     <a href="#features">Features</a>
     <a href="#pricing">Pricing</a>
-    <a href="#" class="nav-cta" onclick="openModal('Monthly', '$49');return false;">Join Now</a>
+    <a href="#pricing" class="nav-cta" onclick="return true;">Join Now</a>
   </div>
   <div class="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
 </nav>
-
+ 
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
   <button class="close-btn" onclick="toggleMenu()">✕</button>
   <a href="#how" onclick="toggleMenu()">How It Works</a>
   <a href="#features" onclick="toggleMenu()">Features</a>
   <a href="#pricing" onclick="toggleMenu()">Pricing</a>
-  <a href="#" class="mob-cta" onclick="toggleMenu(); openModal('Monthly','$49'); return false;">Join Now</a>
+  <a href="#pricing" class="mob-cta" onclick="toggleMenu(); return true;">Join Now</a>
 </div>
-
+ 
 <!-- MAIN SITE -->
 <div id="mainsite">
-
+ 
   <!-- HERO -->
   <section class="hero" style="padding-top:140px; max-width:100%;">
     <div class="hero-bg"></div>
@@ -585,7 +585,7 @@
       <p style="color:var(--muted); font-size:0.78rem; margin-top:20px; letter-spacing:0.03em;">No fluff. No noise. Just actionable signals delivered to your phone.</p>
     </div>
   </section>
-
+ 
   <!-- TICKER -->
   <div class="ticker-wrap">
     <div class="ticker" id="ticker">
@@ -612,12 +612,12 @@
       <div class="ticker-item"><span class="sym">COIN</span><span class="up">▲ +4.7%</span></div>
     </div>
   </div>
-
+ 
   <!-- LIVE MARKET DATA (TradingView) -->
   <section style="padding: 60px 40px 0; max-width:1100px; margin:0 auto;">
     <div class="section-label" style="text-align:center; margin-bottom:8px;">Live Markets</div>
-    <p style="text-align:center; color:var(--muted); font-size:0.82rem; margin-bottom:24px; letter-spacing:0.03em;">Real-time data · Powered by TradingView</p>
-
+    <p style="text-align:center; color:var(--muted); font-size:0.82rem; margin-bottom:24px; letter-spacing:0.03em;">Live market data via TradingView</p>
+ 
     <!-- Market Overview Widget -->
     <div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:24px;">
       <div class="tradingview-widget-container">
@@ -660,7 +660,7 @@
         </script>
       </div>
     </div>
-
+ 
     <!-- Mini Symbol Info Bar -->
     <div style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
       <div class="tradingview-widget-container">
@@ -689,8 +689,8 @@
   </section>
   <div class="stats" style="margin: 80px auto; max-width:700px; padding:0 60px; box-sizing:content-box;">
     <div class="stat">
-      <span class="stat-num">3–5×</span>
-      <div class="stat-label">Alerts Per Week</div>
+      <span class="stat-num">Daily</span>
+      <div class="stat-label">SPY Alerts Weekdays</div>
     </div>
     <div class="stat">
       <span class="stat-num">24/7</span>
@@ -701,7 +701,7 @@
       <div class="stat-label">Less Than a Bad Trade</div>
     </div>
   </div>
-
+ 
   <!-- HOW IT WORKS -->
   <section id="how">
     <div class="section-label">How It Works</div>
@@ -730,7 +730,7 @@
       <a href="#pricing" class="btn-primary">Join Stock Club →</a>
     </div>
   </section>
-
+ 
   <!-- FEATURES -->
   <section id="features" style="padding-top:0;">
     <div class="section-label">What You Get</div>
@@ -758,7 +758,7 @@
       </div>
     </div>
   </section>
-
+ 
   <!-- WHO IT'S FOR -->
   <section style="padding-top:0;">
     <div class="section-label">Is This For You?</div>
@@ -783,7 +783,7 @@
     </div>
     <p style="text-align:center; color:var(--muted); font-size:0.82rem; margin-top:28px; font-style:italic;">Not financial advice — Stock Club provides information and community, not guarantees.</p>
   </section>
-
+ 
   <!-- TELEGRAM SECTION -->
   <section style="padding-top:0;">
     <div class="telegram-block">
@@ -800,7 +800,7 @@
       </div>
     </div>
   </section>
-
+ 
   <!-- BROKERAGE SECTION -->
   <section id="brokerage" style="background:var(--dark2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
     <div class="section-label">Before You Join</div>
@@ -809,7 +809,7 @@
       Stock Club delivers real-time alerts and trade ideas — to act on them you'll need somewhere to trade. If you don't have a brokerage yet, we recommend Robinhood. It's free, commission-free, and takes minutes to set up.
     </p>
     <div style="display:flex; gap:24px; justify-content:center; flex-wrap:wrap; max-width:760px; margin:0 auto;">
-
+ 
       <!-- Robinhood Brokerage -->
       <a href="https://join.robinhood.com/ralphc69" target="_blank" style="text-decoration:none; flex:1; min-width:280px; max-width:340px;">
         <div style="background:var(--dark3); border:1px solid var(--border); border-radius:12px; padding:32px 28px; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
@@ -821,7 +821,7 @@
           </div>
         </div>
       </a>
-
+ 
       <!-- Robinhood Prediction Markets -->
       <a href="https://join.robinhood.com/ralphc69/ec_referral_v1" target="_blank" style="text-decoration:none; flex:1; min-width:280px; max-width:340px;">
         <div style="background:var(--dark3); border:1px solid var(--border); border-radius:12px; padding:32px 28px; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
@@ -833,10 +833,10 @@
           </div>
         </div>
       </a>
-
+ 
     </div>
   </section>
-
+ 
   <!-- PRICING -->
   <section id="pricing">
     <div class="section-label">Membership</div>
@@ -848,10 +848,10 @@
         <div class="price-amt"><sup>$</sup>49</div>
         <div class="price-period">per month · cancel anytime</div>
         <ul class="price-features">
-          <li>All real-time alerts & signals</li>
+          <li>Daily $SPY options alerts</li>
           <li>Private Telegram access</li>
-          <li>Weekly research drops</li>
-          <li>Full community access</li>
+          <li>Key levels & market analysis</li>
+          <li>Strict TP/SL on every trade</li>
         </ul>
         <button class="btn-primary btn-full" onclick="openModal('Monthly', '$49')">Get Started →</button>
       </div>
@@ -861,21 +861,21 @@
         <div class="price-period">every 3 months · save 19%</div>
         <ul class="price-features">
           <li>Everything in Monthly</li>
-          <li>Priority alert notifications</li>
-          <li>Monthly live Q&A</li>
-          <li>Exclusive trade setups</li>
+          <li>Save $28 vs monthly</li>
+          <li>Locked-in rate for 3 months</li>
+          <li>Full community access</li>
         </ul>
         <button class="btn-primary btn-full" onclick="openModal('Quarterly', '$119')">Get Started →</button>
       </div>
       <div class="price-card">
         <div class="price-name">Annual</div>
         <div class="price-amt"><sup>$</sup>399</div>
-        <div class="price-period">per year · best value at $33/mo</div>
+        <div class="price-period">per year · just $33/mo</div>
         <ul class="price-features">
-          <li>Everything in Quarterly</li>
-          <li>1-on-1 portfolio review</li>
-          <li>Early access to new picks</li>
-          <li>Rate locked in for life</li>
+          <li>Everything in Monthly</li>
+          <li>Save $189 vs monthly</li>
+          <li>Rate locked for the full year</li>
+          <li>Full community access</li>
         </ul>
         <button class="btn-primary btn-full" onclick="openModal('Annual', '$399')">Get Started →</button>
       </div>
@@ -902,27 +902,155 @@
     </div>
     <p style="text-align:center; color:var(--muted); font-size:0.78rem; margin-top:32px;">Payments processed securely by Stripe. Cancel anytime from your Stripe billing portal.</p>
   </section>
-
+ 
   <!-- FOOTER -->
   <footer>
     <img src="/Bull.png" alt="Stock Club" style="width:52px; height:52px; border-radius:50%; object-fit:cover; margin-bottom:12px;"/>
     <p>© 2026 Stock Club. For informational purposes only. Not financial advice.</p>
     <p style="color:var(--muted); font-size:0.75rem;">Payments secured by Stripe · SSL Encrypted</p>
-    <a href="/legacy.html" style="color:var(--gold); font-size:0.78rem; text-decoration:none; opacity:0.7; transition: opacity 0.2s; font-weight:600; letter-spacing:0.05em;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">⭐ Legacy Members</a>
+    <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-top:12px; font-size:0.75rem;">
+      <a href="#terms" onclick="document.getElementById('termsModal').style.display='flex'" style="color:var(--muted); text-decoration:none;">Terms of Service</a>
+      <a href="#privacy" onclick="document.getElementById('privacyModal').style.display='flex'" style="color:var(--muted); text-decoration:none;">Privacy Policy</a>
+      <a href="#refunds" onclick="document.getElementById('refundModal').style.display='flex'" style="color:var(--muted); text-decoration:none;">Refund Policy</a>
+      <a href="mailto:ralph@crespoholdings.net" style="color:var(--muted); text-decoration:none;">Contact</a>
+    </div>
+    <a href="/legacy.html" style="color:var(--gold); font-size:0.78rem; text-decoration:none; opacity:0.7; transition: opacity 0.2s; font-weight:600; letter-spacing:0.05em; margin-top:12px; display:inline-block;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">⭐ Legacy Members</a>
   </footer>
-
+ 
+  <!-- TERMS MODAL -->
+  <div id="termsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; padding:40px; max-width:640px; width:100%; max-height:80vh; overflow-y:auto; position:relative;">
+      <button onclick="document.getElementById('termsModal').style.display='none'" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">×</button>
+      <h2 style="font-family:'Playfair Display',serif; margin-bottom:8px;">Terms of Service</h2>
+      <p style="color:var(--muted); font-size:0.78rem; margin-bottom:24px;">Last updated: March 2026</p>
+      <div style="color:var(--muted); font-size:0.85rem; line-height:1.9;">
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">1. Agreement</p>
+        <p style="margin-bottom:16px;">By accessing or purchasing a membership to Stock Club ("Service"), operated by Crespo Holdings LLC ("Company," "we," "us"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">2. Not Financial Advice</p>
+        <p style="margin-bottom:16px;">ALL content, alerts, analysis, commentary, and any other information provided through Stock Club is for INFORMATIONAL AND EDUCATIONAL PURPOSES ONLY. Nothing provided constitutes financial advice, investment advice, trading advice, or a recommendation to buy, sell, or hold any security, option, or financial instrument. You acknowledge that trading involves substantial risk of loss and is not appropriate for all investors. Past performance is not indicative of future results. No specific outcome or profit is guaranteed. You are solely responsible for your own investment decisions.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">3. No Fiduciary Duty</p>
+        <p style="margin-bottom:16px;">No fiduciary obligation or duty exists, or is created, by virtue of your receipt of any information from Stock Club. The Company is not a registered investment advisor, broker-dealer, or financial planner.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">4. Membership & Access</p>
+        <p style="margin-bottom:16px;">Upon successful payment, you will receive access to the private Stock Club Telegram channel. Access is personal and non-transferable. You may not share your access, invite link, or membership credentials with any third party. Violation of this rule results in immediate termination without refund.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">5. Subscription Billing</p>
+        <p style="margin-bottom:16px;">Memberships automatically renew at the end of each billing period unless cancelled. You may cancel at any time through the Stripe billing portal. Cancellation takes effect at the end of the current billing cycle. We do not offer prorated refunds for unused time.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">6. All Sales Final — No Refunds</p>
+        <p style="margin-bottom:16px;">ALL PURCHASES ARE FINAL AND NON-REFUNDABLE. Due to the immediate digital delivery of our Service (instant Telegram access granted upon payment), we do not offer refunds under any circumstances, including but not limited to: dissatisfaction with trade results, change of mind, or failure to use the Service. Lifetime memberships are non-refundable. By completing your purchase you acknowledge and agree to this policy.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">7. Content & Intellectual Property</p>
+        <p style="margin-bottom:16px;">All alerts, analysis, and content shared within the Stock Club channel are the proprietary information of Crespo Holdings LLC. You may not screenshot, copy, redistribute, resell, or share any content outside the private channel. Violation results in immediate termination and may result in legal action.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">8. Conduct</p>
+        <p style="margin-bottom:16px;">Members must conduct themselves respectfully. Harassment, spamming, or disruptive behavior will result in immediate removal without refund. The Company reserves the right to terminate any membership at its sole discretion.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">9. Limitation of Liability</p>
+        <p style="margin-bottom:16px;">TO THE MAXIMUM EXTENT PERMITTED BY LAW, CRESPO HOLDINGS LLC SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES ARISING FROM YOUR USE OF THE SERVICE OR ANY TRADES MADE BASED ON INFORMATION PROVIDED. YOUR SOLE REMEDY FOR DISSATISFACTION IS TO CANCEL YOUR MEMBERSHIP.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">10. Risk Disclosure</p>
+        <p style="margin-bottom:16px;">Options trading involves a high degree of risk and may not be suitable for all investors. You can lose your entire investment. The Service discusses options trading strategies which carry significant financial risk. Never trade with money you cannot afford to lose.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">11. Governing Law</p>
+        <p style="margin-bottom:16px;">These Terms are governed by the laws of the State of New Jersey. Any disputes shall be resolved in the courts of New Jersey.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">12. Contact</p>
+        <p>ralph@crespoholdings.net</p>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- PRIVACY MODAL -->
+  <div id="privacyModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; padding:40px; max-width:640px; width:100%; max-height:80vh; overflow-y:auto; position:relative;">
+      <button onclick="document.getElementById('privacyModal').style.display='none'" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">×</button>
+      <h2 style="font-family:'Playfair Display',serif; margin-bottom:8px;">Privacy Policy</h2>
+      <p style="color:var(--muted); font-size:0.78rem; margin-bottom:24px;">Last updated: March 2026</p>
+      <div style="color:var(--muted); font-size:0.85rem; line-height:1.9;">
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">1. Information We Collect</p>
+        <p style="margin-bottom:16px;">When you sign up for Stock Club, we collect: your full name, email address, and Telegram username. Payment information is processed exclusively by Stripe and is never stored on our servers. We do not collect social security numbers, government IDs, or financial account information.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">2. How We Use Your Information</p>
+        <p style="margin-bottom:16px;">Your information is used solely to: (a) process your membership payment, (b) deliver your Telegram channel access, (c) manage your subscription, and (d) communicate important account updates. We do not use your information for advertising or marketing to third parties.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">3. We Do Not Sell Your Data</p>
+        <p style="margin-bottom:16px;">We do not sell, rent, trade, or otherwise transfer your personal information to any third party for any purpose. Your data is yours.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">4. Third-Party Services</p>
+        <p style="margin-bottom:16px;">We use the following third-party services to operate Stock Club: (a) Stripe for payment processing — their privacy policy is at stripe.com/privacy; (b) Telegram for community delivery — their privacy policy is at telegram.org/privacy. We share only the minimum necessary information with these services to deliver your membership.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">5. Data Security</p>
+        <p style="margin-bottom:16px;">We implement industry-standard security measures to protect your information. Our backend is served over HTTPS with SSL encryption. Payment data is handled entirely by Stripe's PCI-compliant infrastructure.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">6. Data Retention</p>
+        <p style="margin-bottom:16px;">We retain your personal information for as long as your membership is active and for a reasonable period afterward as required for legal and business purposes. You may request deletion of your data at any time by contacting us.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">7. Your Rights</p>
+        <p style="margin-bottom:16px;">You have the right to: access the personal data we hold about you, request correction of inaccurate data, request deletion of your data, and opt out of any communications. To exercise these rights, email ralph@crespoholdings.net.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">8. Cookies</p>
+        <p style="margin-bottom:16px;">Our website does not use tracking cookies or third-party advertising cookies. Stripe may set cookies for payment processing purposes.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">9. Children's Privacy</p>
+        <p style="margin-bottom:16px;">Stock Club is not intended for individuals under the age of 18. We do not knowingly collect personal information from minors.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">10. Contact</p>
+        <p>ralph@crespoholdings.net</p>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- REFUND MODAL -->
+  <div id="refundModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; padding:40px; max-width:640px; width:100%; max-height:80vh; overflow-y:auto; position:relative;">
+      <button onclick="document.getElementById('refundModal').style.display='none'" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">×</button>
+      <h2 style="font-family:'Playfair Display',serif; margin-bottom:8px;">Refund Policy</h2>
+      <p style="color:var(--muted); font-size:0.78rem; margin-bottom:24px;">Last updated: March 2026</p>
+      <div style="color:var(--muted); font-size:0.85rem; line-height:1.9;">
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">All Sales Are Final</p>
+        <p style="margin-bottom:16px;">ALL PURCHASES ARE FINAL. WE DO NOT OFFER REFUNDS UNDER ANY CIRCUMSTANCES.</p>
+ 
+        <p style="margin-bottom:16px;">By completing your purchase you expressly acknowledge and agree that: (a) Stock Club delivers immediate digital access upon payment confirmation, (b) the Service is fully delivered the moment your Telegram invite is issued, and (c) you waive any right to a refund based on this immediate delivery.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">This applies to all plans including:</p>
+        <p style="margin-bottom:16px;">Monthly subscriptions · Quarterly subscriptions · Annual subscriptions · Lifetime memberships · Legacy memberships</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">No Refunds For:</p>
+        <p style="margin-bottom:16px;">Change of mind · Dissatisfaction with trade results · Market losses · Unused membership time · Forgetting to cancel before renewal · Failure to access the Telegram channel due to user error</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">Cancellation</p>
+        <p style="margin-bottom:16px;">You may cancel your subscription at any time through the Stripe billing portal to prevent future charges. Cancellation stops future billing but does not entitle you to a refund for the current or any prior billing period. Access continues until the end of your paid period.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">Technical Issues</p>
+        <p style="margin-bottom:16px;">If you experience a verified technical failure that prevents access delivery entirely (i.e. your Telegram invite was never sent through no fault of your own), contact us within 48 hours at ralph@crespoholdings.net and we will resolve the access issue. This does not entitle you to a refund — only resolution of the access problem.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">Chargebacks</p>
+        <p style="margin-bottom:16px;">Filing a chargeback or payment dispute after receiving access to the Service is considered fraud. We reserve the right to permanently ban any member who files a fraudulent chargeback and to pursue recovery of funds through all available legal means.</p>
+ 
+        <p style="color:var(--text); font-weight:600; margin-bottom:6px;">Contact</p>
+        <p>ralph@crespoholdings.net</p>
+      </div>
+    </div>
+  </div>
+ 
 </div><!-- /mainsite -->
-
+ 
 <!-- CHECKOUT MODAL -->
 <div class="modal-overlay" id="checkoutModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
-
+ 
     <!-- FORM STATE -->
     <div id="formState">
       <h2>Join Stock Club</h2>
       <p class="modal-sub">Complete your membership — you'll be added to Telegram instantly.</p>
-
+ 
       <!-- PLAN SWITCHER -->
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:20px;">
         <button class="plan-tab" id="tab-Monthly" onclick="switchPlan('Monthly','$49','$49/mo')">
@@ -942,12 +1070,12 @@
           <div style="font-size:1.1rem; font-weight:700; color:var(--gold);">$1,500</div>
         </button>
       </div>
-
+ 
       <div class="plan-summary">
         <span class="plan-name" id="selectedPlan">Monthly - $49/mo</span>
         <span class="plan-price" id="selectedPrice">$49</span>
       </div>
-
+ 
       <div class="form-group">
         <label>Full Name</label>
         <input type="text" id="fullName" placeholder="John Smith"/>
@@ -961,28 +1089,28 @@
         <input type="text" id="telegramInput" placeholder="@yourhandle"/>
         <p style="font-size:0.72rem; color:var(--muted); margin-top:6px;">Enter exactly as it appears in your Telegram profile — tap your name → Username</p>
       </div>
-
+ 
       <button class="btn-primary btn-full" onclick="simulatePayment()">Continue to Payment →</button>
       <p class="stripe-badge">Powered by Stripe · 256-bit SSL encryption</p>
     </div>
-
+ 
     <!-- SUCCESS STATE -->
     <div class="success-state" id="successState">
       <div class="check">🎉</div>
       <h3>You're in!</h3>
       <p>Payment confirmed. You're being added to the <strong>Stock Club private Telegram group</strong> right now — check your Telegram for the invite link within 60 seconds.</p>
-      <a href="https://t.me/yourgroup" class="telegram-btn" target="_blank">
+      <a href="https://t.me/stockclub_membership_bot" class="telegram-btn" target="_blank">
         ✈️ Open Telegram Group
       </a>
     </div>
-
+ 
   </div>
 </div>
-
+ 
 <script>
 // ─── CONFIG: replace with your Render backend URL after deploying ───
 const BACKEND_URL = 'https://stockclub-backend.onrender.com'; // ✅ Your live backend
-
+ 
 function openModal(plan, price) {
   const periodMap = { Monthly: '$49/mo', Quarterly: '$119/3mo', Annual: '$399/yr', Lifetime: '$1,500 once' };
   document.getElementById('selectedPlan').textContent = plan + ' — ' + (periodMap[plan] || price);
@@ -999,18 +1127,18 @@ function openModal(plan, price) {
   btn.style.opacity = '1';
   btn.disabled = false;
 }
-
+ 
 function closeModal() {
   document.getElementById('checkoutModal').classList.remove('open');
   document.body.style.overflow = '';
 }
-
+ 
 async function simulatePayment() {
   const name  = document.getElementById('fullName').value.trim();
   const email = document.getElementById('emailInput').value.trim();
   const tg    = document.getElementById('telegramInput').value.trim();
   const planLabel = document.getElementById('selectedPlan').textContent;
-
+ 
   if (!name || !email || !tg) {
     alert('Please fill in your name, email, and Telegram username.');
     return;
@@ -1023,18 +1151,18 @@ async function simulatePayment() {
     alert('Telegram username must start with @ (e.g. @yourname)');
     return;
   }
-
+ 
   // Map display label → backend plan key
   const planKey = planLabel.toLowerCase().includes('monthly')   ? 'monthly'
                 : planLabel.toLowerCase().includes('quarterly') ? 'quarterly'
                 : planLabel.toLowerCase().includes('annual')    ? 'annual'
                 : 'lifetime';
-
+ 
   const btn = document.querySelector('#formState .btn-primary');
   btn.textContent = 'Redirecting to payment...';
   btn.style.opacity = '0.7';
   btn.disabled = true;
-
+ 
   try {
     const res = await fetch(`${BACKEND_URL}/create-checkout`, {
       method: 'POST',
@@ -1046,9 +1174,9 @@ async function simulatePayment() {
         telegram_username: tg,
       }),
     });
-
+ 
     const data = await res.json();
-
+ 
     if (data.url) {
       // Redirect to Stripe's hosted checkout page
       window.location.href = data.url;
@@ -1062,16 +1190,16 @@ async function simulatePayment() {
     btn.disabled = false;
   }
 }
-
+ 
 // Close on overlay click
 document.getElementById('checkoutModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-
+ 
 function toggleMenu() {
   document.getElementById('mobileMenu').classList.toggle('open');
 }
-
+ 
 function switchPlan(label, price, period) {
   document.getElementById('selectedPlan').textContent = label + ' — ' + period;
   document.getElementById('selectedPrice').textContent = price;
@@ -1079,7 +1207,7 @@ function switchPlan(label, price, period) {
   const tab = document.getElementById('tab-' + label);
   if (tab) tab.classList.add('active');
 }
-
+ 
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', function(e) {
@@ -1089,7 +1217,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
   });
 });
-
+ 
 // ─── SUCCESS PAGE: Show after Stripe redirects back ───────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   if (window.location.search.includes('success=true')) {
@@ -1101,7 +1229,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-
+ 
 <!-- SUCCESS PAGE -->
 <div id="successPage" style="display:none; min-height:100vh; background:var(--dark); justify-content:center; align-items:center; padding:40px; flex-direction:column; text-align:center;">
   <div style="max-width:560px; background:var(--dark2); border:1px solid var(--border); border-radius:12px; padding:60px 48px;">
@@ -1112,7 +1240,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <p style="color:var(--muted); font-size:0.95rem; line-height:1.8; margin-bottom:32px;">
       Your payment is confirmed. To receive your private Telegram invite link, you need to <strong style="color:var(--text);">message our bot first</strong> — this is a one-time step so Telegram allows us to contact you.
     </p>
-
+ 
     <!-- Step 1 -->
     <div style="background:var(--dark3); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:16px; text-align:left; display:flex; gap:16px; align-items:flex-start;">
       <div style="background:var(--gold); color:var(--dark); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; flex-shrink:0;">1</div>
@@ -1124,7 +1252,7 @@ window.addEventListener('DOMContentLoaded', () => {
         </a>
       </div>
     </div>
-
+ 
     <!-- Step 2 -->
     <div style="background:var(--dark3); border:1px solid var(--border); border-radius:8px; padding:24px; text-align:left; display:flex; gap:16px; align-items:flex-start;">
       <div style="background:var(--gold); color:var(--dark); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; flex-shrink:0;">2</div>
@@ -1133,12 +1261,12 @@ window.addEventListener('DOMContentLoaded', () => {
         <p style="color:var(--muted); font-size:0.85rem;">Once you message the bot, your private group invite will be sent to you automatically within 60 seconds. 📈</p>
       </div>
     </div>
-
+ 
     <p style="color:var(--muted); font-size:0.75rem; margin-top:28px;">
       Questions? Email us or check your spam folder if you don't receive anything within 5 minutes.
     </p>
   </div>
 </div>
-
+ 
 </body>
 </html>
